@@ -1,0 +1,64 @@
+[gd_scene load_steps=13 format=2]
+
+[sub_resource type="PhysicsMaterial" id=6]
+bounce = 0.27
+
+[sub_resource type="OpenSimplexNoise" id=7]
+seed = 7
+octaves = 9
+period = 4.6
+persistence = 0.446
+lacunarity = 4.0
+
+[sub_resource type="NoiseTexture" id=8]
+noise = SubResource( 7 )
+
+[sub_resource type="AnimatedTexture" id=9]
+frames = 2
+frame_1/delay_sec = 0.0
+
+[sub_resource type="AtlasTexture" id=10]
+atlas = SubResource( 9 )
+
+[sub_resource type="SpatialMaterial" id=2]
+albedo_color = Color( 0.333333, 0.211765, 0.333333, 1 )
+albedo_texture = SubResource( 8 )
+metallic_texture = SubResource( 10 )
+metallic_texture_channel = 2
+subsurf_scatter_enabled = true
+subsurf_scatter_strength = 0.0
+
+[sub_resource type="SphereMesh" id=3]
+material = SubResource( 2 )
+
+[sub_resource type="CylinderMesh" id=4]
+height = 0.182
+
+[sub_resource type="OpenSimplexNoise" id=11]
+
+[sub_resource type="NoiseTexture" id=12]
+noise = SubResource( 11 )
+
+[sub_resource type="SpatialMaterial" id=5]
+albedo_color = Color( 0.0588235, 0.192157, 0.027451, 1 )
+albedo_texture = SubResource( 12 )
+
+[sub_resource type="SphereShape" id=1]
+
+[node name="Spatial" type="Spatial"]
+
+[node name="RigidBody" type="RigidBody" parent="."]
+physics_material_override = SubResource( 6 )
+
+[node name="MeshInstance" type="MeshInstance" parent="RigidBody"]
+mesh = SubResource( 3 )
+skeleton = NodePath("")
+material/0 = null
+
+[node name="Belt" type="MeshInstance" parent="RigidBody"]
+mesh = SubResource( 4 )
+skeleton = NodePath("")
+material/0 = SubResource( 5 )
+
+[node name="CollisionShape" type="CollisionShape" parent="RigidBody"]
+shape = SubResource( 1 )

@@ -1,0 +1,27 @@
+[gd_scene load_steps=6 format=2]
+
+[sub_resource type="CubeMesh" id=1]
+size = Vector3( 5, 3, 5 )
+
+[sub_resource type="Curve" id=2]
+_data = [ Vector2( 0.391304, 0.318182 ), 0.0, 0.0, 0, 0, Vector2( 0.88587, 0.954545 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=3]
+curve = SubResource( 2 )
+
+[sub_resource type="SpatialMaterial" id=4]
+albedo_color = Color( 0.0823529, 0.168627, 0.466667, 1 )
+albedo_texture = SubResource( 3 )
+
+[sub_resource type="BoxShape" id=5]
+extents = Vector3( 2.5, 1.5, 2.5 )
+
+[node name="StaticBody" type="StaticBody"]
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+mesh = SubResource( 1 )
+skeleton = NodePath("")
+material/0 = SubResource( 4 )
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 5 )
