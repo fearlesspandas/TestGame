@@ -12,12 +12,14 @@ var ray_origin : Vector3 = Vector3()
 var ray_target : Vector3 = Vector3()
 var rot:     Vector3 = Vector3()
 var detached : bool = false
-var cameracaster:Node = null
+var free_moving : bool = false
+var force_attach: bool = false
+var initangles_rightclick = Vector3()
 onready var cameraspace : Spatial = get_child(0)
 onready var camerabody = cameraspace.get_child(0)
 onready var ray = get_node("CameraSpace/CameraBody/Camera/CursorRay")
 onready var camera = get_node("CameraSpace/CameraBody/Camera")
-onready var initangles = camera.rotation_degrees
+onready var initangles_refocus = camera.rotation_degrees
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 func _input(event):
@@ -50,27 +52,26 @@ func getInput() -> Vector3:
 	return input
 func _physics_process(delta):
 	var input = getInput()
-	if input.length() > 0:
+	if input.length() > 0 and not force_attach:
 		detached = true
-		var dir =( (global_transform.basis.z * input.z) + (global_transform.basis.x * input.x) + Vector3(0,input.y,0) ) * delta * scrollDelta
-		global_transform.origin += dir
-		cameracaster = load("res://cameracaster.tscn").instance()
-		add_child(cameracaster)
-	if detached and cameracaster != null:
-		cameracaster.global_transform.origin = global_transform.origin	
-	if Input.is_action_pressed("right_click"):
-		rot = Vector3(mouseDelta.y * lookSense_v,mouseDelta.x * lookSens_h,0)  * delta
-		camera.rotation_degrees.x -= rot.x
-		camera.rotation_degrees.x = clamp(camera.rotation_degrees.x,minLookAngle,maxLookAngle)
-		camera.rotation_degrees.y -= rot.y
-		mouseDelta = Vector2()
-	elif Input.is_action_pressed("refocus_camera"):
-		camera.rotation_degrees = initangles
+		var dir =( (camera.global_transform.basis.z * input.z) + (camera.global_transform.basis.x * input.x) -Vector3(0,input.y,0) ) * delta * scrollDelta
+		global_transform.origin -= dir
+	if Input.is_action_just_pressed("right_click"):
+		free_moving = not free_moving
+#		if not force_attach:
+#			camera.rotation_degrees = initangles_rightclick
+#			initangles_rightclick = Vector3()
+	free_moving = free_moving or detached
+	if Input.is_action_pressed("refocus_camera"):
+		camera.rotation_degrees = initangles_refocus
 		detached = false
-		remove_child(cameracaster)
-		if cameracaster != null:
-			cameracaster.call_deferred("free")
-			cameracaster = null
+	elif free_moving:
+#		cameraspace.rotation_degrees.x = 0
+		rot = Vector3(mouseDelta.y * lookSense_v,mouseDelta.x * lookSens_h/30,0)  * delta
+		camera.rotation_degrees.x -= rot.x
+		camera.rotation_degrees.x = clamp(camera.rotation_degrees.x,minLookAngle/2,maxLookAngle/2)
+		camera.global_rotate(Vector3.UP,-rot.y)
+		mouseDelta = Vector2()
 	else:
 		rot = Vector3(mouseDelta.y * lookSense_v,mouseDelta.x * lookSens_h,0)  * delta
 		self.rotation_degrees.x += rot.x

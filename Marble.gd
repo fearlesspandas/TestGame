@@ -12,8 +12,9 @@ var thresh : float = 1
 func _physics_process(delta):
 	var playerloc = rigidplayer.global_transform.origin
 	var cameraloc = cameraorbit.global_transform.origin
-	
-	var diff = (cameraloc - playerloc) * delta
+	var avg_speed = sqrt(player.moveSpeed_x * player.moveSpeed_x + player.moveSpeed_z * player.moveSpeed_z)
+	var diff = cameraloc - playerloc
+	diff = (diff).normalized() * delta * max (avg_speed,diff.length()) 
 #	if diff.x/delta < thresh:
 #		diff.x = 0
 #	if diff.z/delta < thresh:

@@ -1,0 +1,11 @@
+[gd_scene format=2]
+
+[node name="autopilot_label" type="RichTextLabel"]
+margin_top = 584.0
+margin_right = 164.0
+margin_bottom = 624.0
+text = "Autopilot On"
+fit_content_height = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
