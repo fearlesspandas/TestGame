@@ -13,8 +13,8 @@ var autopilot_label_instance = null
 var escape_menu_instance = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
-#	OS.set_window_fullscreen(!OS.window_fullscreen)
-	pass
+	OS.set_window_fullscreen(!OS.window_fullscreen)
+#	pass
 func _process(delta):
 	if Input.is_action_just_pressed("toggle_autopilot"):
 		autopilotEnabled = not autopilotEnabled

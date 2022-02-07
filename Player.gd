@@ -110,10 +110,13 @@ func handle_manual(input:Vector3,delta):
 		moveSpeed_z = decelerate(moveSpeed_z)
 	moveSpeed_x = capspeed(moveSpeed_x)
 	moveSpeed_z = capspeed(moveSpeed_z)
-	var dir =( (camera.global_transform.basis.z * moveSpeed_z) + (camera.global_transform.basis.x * moveSpeed_x) + Vector3(0,input.y * jumpForce,0) )
+	var vec = (camera.global_transform.basis)
+	var dir =( (vec.z * moveSpeed_z) + (vec.x * moveSpeed_x) + Vector3(0,input.y * jumpForce,0) )
 	rigid.set_axis_velocity(dir)
 func toggle_autopilot():
 	autopilot_on = not autopilot_on
+	if not autopilot_on:
+		within_epsilon = false
 	
 func _physics_process(delta):
 	if Input.is_action_just_pressed("toggle_autopilot"):
