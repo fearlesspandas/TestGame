@@ -1,4 +1,6 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=15 format=2]
+
+[ext_resource path="res://BeltOrbit.gd" type="Script" id=1]
 
 [sub_resource type="PhysicsMaterial" id=6]
 bounce = 0.27
@@ -45,6 +47,10 @@ albedo_texture = SubResource( 12 )
 
 [sub_resource type="SphereShape" id=1]
 
+[sub_resource type="SphereMesh" id=13]
+radius = 0.1
+height = 0.2
+
 [node name="Spatial" type="Spatial"]
 
 [node name="RigidBody" type="RigidBody" parent="."]
@@ -62,6 +68,14 @@ material/0 = SubResource( 5 )
 
 [node name="CollisionShape" type="CollisionShape" parent="RigidBody"]
 shape = SubResource( 1 )
+
+[node name="BeltOrbit" type="Spatial" parent="RigidBody"]
+script = ExtResource( 1 )
+
+[node name="QuantumBelt" type="MeshInstance" parent="RigidBody/BeltOrbit"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.20717, 0, 0 )
+mesh = SubResource( 13 )
+material/0 = null
 
 [node name="KinematicBody" type="KinematicBody" parent="."]
 

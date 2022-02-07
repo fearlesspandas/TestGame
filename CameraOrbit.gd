@@ -19,7 +19,9 @@ onready var cameraspace : Spatial = get_child(0)
 onready var camerabody = cameraspace.get_child(0)
 onready var ray = get_node("CameraSpace/CameraBody/Camera/CursorRay")
 onready var camera = get_node("CameraSpace/CameraBody/Camera")
-onready var initangles_refocus = camera.rotation_degrees
+onready var initbasis_refocus_camera = camera.global_transform.basis
+onready var initpos_refocus_camera = camera.global_transform.origin
+onready var initangles_refocus_orbit = self.rotation_degrees
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 func _input(event):
@@ -58,15 +60,24 @@ func _physics_process(delta):
 		global_transform.origin -= dir
 	if Input.is_action_just_pressed("right_click"):
 		free_moving = not free_moving
+		var camera_pos = camera.global_transform.origin
+		var camera_basis = camera.global_transform.basis
+		self.rotation_degrees = Vector3()
+		camera.global_transform.origin = camera_pos
+		camera.global_transform.basis = camera_basis
 #		if not force_attach:
 #			camera.rotation_degrees = initangles_rightclick
 #			initangles_rightclick = Vector3()
 	free_moving = free_moving or detached
 	if Input.is_action_pressed("refocus_camera"):
-		camera.rotation_degrees = initangles_refocus
+		camera.global_transform.basis = initbasis_refocus_camera
+		camera.global_transform.origin = initpos_refocus_camera
+		self.rotation_degrees.x = initangles_refocus_orbit.x
+		self.rotation_degrees.z = initangles_refocus_orbit.z
 		detached = false
 	elif free_moving:
-#		cameraspace.rotation_degrees.x = 0
+#		camera.rotation_degrees.z = self.rotation_degrees.z
+#		camera.rotation_degrees.x = self.rotation_degrees.x
 		rot = Vector3(mouseDelta.y * lookSense_v,mouseDelta.x * lookSens_h/30,0)  * delta
 		camera.rotation_degrees.x -= rot.x
 		camera.rotation_degrees.x = clamp(camera.rotation_degrees.x,minLookAngle/2,maxLookAngle/2)

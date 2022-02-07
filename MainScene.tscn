@@ -13,7 +13,7 @@ entity = ExtResource( 4 )
 [node name="Base" parent="." instance=ExtResource( 3 )]
 
 [node name="P1" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -15.6826, 7.78456, -1.6535 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0 )
 
 [node name="MeshInstance" parent="." instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.34193, 32.8775 )
