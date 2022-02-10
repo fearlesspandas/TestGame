@@ -10,3 +10,4 @@ func _physics_process(delta):
 	rotation_degrees.y += rot_y
 	rotation_degrees.x += rot_x
 	rotation_degrees.z += rot_z
+	belt.rotation_degrees += Vector3(rot_x,rot_y,rot_z) * -1

@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://crosshair.gd" type="Script" id=1]
+[ext_resource path="res://ui/crosshair.gd" type="Script" id=1]
+[ext_resource path="res://ui/autopilot_label.tscn" type="PackedScene" id=2]
+[ext_resource path="res://ui/RingMenu.tscn" type="PackedScene" id=3]
 
 [node name="CrosshairControl" type="Control"]
 anchor_left = 0.5
@@ -15,6 +17,8 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+ring_menu = ExtResource( 3 )
+autopilot_label = ExtResource( 2 )
 
 [node name="Crosshair" type="ColorRect" parent="."]
 anchor_left = 0.5

@@ -11,7 +11,7 @@ size = Vector3( 10000, 1, 10000 )
 albedo_color = Color( 0.611765, 0.101961, 0.101961, 1 )
 
 [sub_resource type="BoxShape" id=4]
-extents = Vector3( 5000, 0.5, 5000 )
+extents = Vector3( 5000, 1, 5000 )
 
 [node name="StaticBody" type="StaticBody"]
 

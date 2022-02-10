@@ -15,6 +15,7 @@ var ray_origin : Vector3 = Vector3()
 var ray_target : Vector3 = Vector3()
 var mouse_position:Vector2 = Vector2()
 var intersect_pos : Vector3 = Vector3()
+var intersection_object : Object = null
 func _physics_process(delta):
 	mouse_position = get_viewport().get_mouse_position()
 	ray_origin = camera.project_ray_origin(mouse_position)
@@ -23,5 +24,5 @@ func _physics_process(delta):
 	var intersection = space_state.intersect_ray(ray_origin,ray_target)
 	if not intersection.empty():
 		intersect_pos = intersection.position
-	
+		intersection_object = intersection.collider
 

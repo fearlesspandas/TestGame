@@ -2,11 +2,11 @@ extends Spatial
 
 export var lookSens_h : float = 10
 export var lookSense_v : float = 20
-var minLookAngle : float = -90.0
-var maxLookAngle : float = 90
-
+export var minLookAngle : float = -90.0
+export var maxLookAngle : float = 90
+export var moveDelta : float = 20
 export var mouseDelta : Vector2 = Vector2()
-export var scrollDelta: float = 10
+export var scrollDelta: float = 5
 var mousepos : Vector2 = Vector2()
 var ray_origin : Vector3 = Vector3()
 var ray_target : Vector3 = Vector3()
@@ -14,11 +14,14 @@ var rot:     Vector3 = Vector3()
 var detached : bool = false
 var free_moving : bool = false
 var force_attach: bool = false
+var stop_movement:bool = false
 var initangles_rightclick = Vector3()
-onready var cameraspace : Spatial = get_child(0)
-onready var camerabody = cameraspace.get_child(0)
-onready var ray = get_node("CameraSpace/CameraBody/Camera/CursorRay")
-onready var camera = get_node("CameraSpace/CameraBody/Camera")
+onready var cameraspace : Spatial = find_node("CameraSpace")
+onready var arm = find_node("SpringArm")
+onready var camerabody = find_node("CameraBody")
+onready var ray = find_node("CursorRay")
+onready var camera = find_node("Camera")
+onready var pointer = get_node("Pointer")
 onready var initbasis_refocus_camera = camera.global_transform.basis
 onready var initpos_refocus_camera = camera.global_transform.origin
 onready var initangles_refocus_orbit = self.rotation_degrees
@@ -32,10 +35,12 @@ func _input(event):
 		mousepos = event.position
 	if event is InputEventMouseButton and event.is_action("scroll_out") and not free_moving:
 		var backdir = (global_transform.origin - camera.global_transform.origin).normalized() * scrollDelta
-		camerabody.move_and_slide(backdir,Vector3.UP)
+#		camerabody.move_and_slide(backdir,Vector3.UP)
+		cameraspace.global_transform.origin += backdir
 	if event is InputEventMouseButton and event.is_action("scroll_in") and not free_moving:
 		var backdir = (global_transform.origin - camera.global_transform.origin).normalized() * -scrollDelta
-		camerabody.move_and_slide(backdir,Vector3.UP)
+#		camerabody.move_and_slide(backdir,Vector3.UP)
+		cameraspace.global_transform.origin += backdir
 
 		
 func getInput() -> Vector3:
@@ -63,51 +68,54 @@ func refocus_camera():
 	self.rotation_degrees = Vector3(0,0,0)
 #	self.rotation_degrees.y = self_rot.y
 	camera.look_at(self.global_transform.origin,Vector3.UP)
-#	self.look_at(camera.global_transform.origin,Vector3.UP)
-#	self.global_transform.basis.x *= -1
+	var campos = camera.global_transform.origin
+	var cambasis = camera.global_transform.basis
+	self.look_at(camera.global_transform.origin,Vector3.UP)
+	self.global_transform.basis.x *= -1
 #	self.global_transform.basis.y *= -1
-#	self.global_transform.basis.x *= -1
+	self.global_transform.basis.x *= -1
+	camera.global_transform.origin = campos
+	camera.global_transform.basis = cambasis
 #	camera.global_transform.basis = initbasis_refocus_camera
 #	camera.global_transform.origin = initpos_refocus_camera
-	print("focusing")
 	
 	free_moving = false
 	detached = false
+func prep_free_moving():
+	var camera_pos = camera.global_transform.origin
+	var camera_basis = camera.global_transform.basis
+	self.rotation_degrees = Vector3(0,self.rotation_degrees.y,0)
+	camera.global_transform.origin = camera_pos
+	camera.global_transform.basis = camera_basis
+	initpos_refocus_camera = camera_pos
+	initbasis_refocus_camera = camera_basis
 func _physics_process(delta):
 	var input = getInput()
 	if input.length() > 0 and not force_attach:
+		if not detached:
+			prep_free_moving()
 		detached = true
-		var dir =( (camera.global_transform.basis.z * input.z) + (camera.global_transform.basis.x * input.x) -Vector3(0,input.y,0) ) * delta * scrollDelta
+		var dir =( (camera.global_transform.basis.z * input.z) + (camera.global_transform.basis.x * input.x) -Vector3(0,input.y,0) ) * delta * moveDelta
 		global_transform.origin -= dir
-	if Input.is_action_just_pressed("right_click"):
+	if Input.is_action_just_pressed("right_click") and not stop_movement:
 		free_moving = not free_moving
 		if free_moving:
-			var camera_pos = camera.global_transform.origin
-			var camera_basis = camera.global_transform.basis
-			self.rotation_degrees = Vector3()
-			camera.global_transform.origin = camera_pos
-			camera.global_transform.basis = camera_basis
-			initpos_refocus_camera = camera_pos
-			initbasis_refocus_camera = camera_basis
+			prep_free_moving()
 		else:
 			refocus_camera()
-#		if not force_attach:
-#			camera.rotation_degrees = initangles_rightclick
-#			initangles_rightclick = Vector3()
+#	if Input.is_action_just_pressed("middle_click"):
+#		stop_movements = not stop_movements
 	free_moving = free_moving or detached
+	pointer.visible = not detached
 	if Input.is_action_pressed("refocus_camera"):
-		var camera_pos = camera.global_transform.origin
-		var camera_basis = camera.global_transform.basis
 		refocus_camera()
-	elif free_moving:
-#		camera.rotation_degrees.z = self.rotation_degrees.z
-#		camera.rotation_degrees.x = self.rotation_degrees.x
+	elif free_moving and not stop_movement:
 		rot = Vector3(mouseDelta.y * lookSense_v,mouseDelta.x * lookSens_h/30,0)  * delta
 		camera.rotation_degrees.x -= rot.x
-		camera.rotation_degrees.x = clamp(camera.rotation_degrees.x,minLookAngle/2,maxLookAngle/2)
+		camera.rotation_degrees.x = clamp(camera.rotation_degrees.x,minLookAngle,maxLookAngle)
 		camera.global_rotate(Vector3.UP,-rot.y)
 		mouseDelta = Vector2()
-	else:
+	elif not stop_movement:
 		rot = Vector3(mouseDelta.y * lookSense_v,mouseDelta.x * lookSens_h,0)  * delta
 		self.rotation_degrees.x += rot.x
 		self.rotation_degrees.x = clamp(self.rotation_degrees.x,minLookAngle,maxLookAngle)
