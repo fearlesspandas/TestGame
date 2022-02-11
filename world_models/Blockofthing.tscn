@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Base.gd" type="Script" id=1]
+[ext_resource path="res://world_models/Building.tscn" type="PackedScene" id=2]
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 10000, 1, 10000 )
@@ -25,6 +26,9 @@ script = ExtResource( 1 )
 
 [node name="CollisionShape" type="CollisionShape" parent="MeshInstance/Area"]
 shape = SubResource( 4 )
+
+[node name="StaticBody" parent="MeshInstance" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.15945, 1, 5.51748 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 4 )

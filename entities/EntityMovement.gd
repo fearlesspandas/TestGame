@@ -3,8 +3,8 @@ export var accell : float = 2.5
 var decell : float = accell
 export var jumpForce :float = 15
 export var gravity : float = 40
-export var MAX_MOVE_SPEED = 10
-export var path_finding_epsiolon : float = 1
+export var MAX_MOVE_SPEED = 4
+export var path_finding_epsiolon : float = 5
 var accelerating:bool = false
 var allowed_to_move:bool = true
 var dest : Array = []
@@ -48,17 +48,25 @@ func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 	
 func handle_autopilot(delta):
 	if dest.size() > 0:
+		print("moving")
 		var next_dest = dest[0]
 		var next = next_dest.location
-		var diff_vec = rigid.global_transform.origin - next
+		var diff_vec = next - rigid.global_transform.origin
 		var within_epsilon = diff_vec.length() < path_finding_epsiolon
 		handle_movement_speeds(within_epsilon,Vector3(1,1,1),delta)
 		if within_epsilon:
 			dest.pop_front()
 		else:
+			print(rigid.global_transform.origin)
+			print(diff_vec)
 			rigid.set_axis_velocity(diff_vec.normalized() * moveSpeed_z)
 #func handle_manual(dir:Vector3):
-
+func handle_sync(delta):
+	Server.server_set_client_player_pos(self.name,rigid.global_transform.origin)
+	var r = rigid.global_transform.basis
+	Server.server_set_client_rotation_deg(self.name,rigid.rotation_degrees)
+#	Server.server_set_client_player_basis(self.name,r)
 func _physics_process(delta):
+	handle_sync(delta)
 	if autopilot_on:
 		handle_autopilot(delta)

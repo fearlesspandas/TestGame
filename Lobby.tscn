@@ -54,13 +54,29 @@ __meta__ = {
 }
 
 [node name="playerpos" type="Label" parent="Control"]
-margin_left = 449.0
-margin_top = 314.0
-margin_right = 549.0
-margin_bottom = 344.0
+margin_left = 431.0
+margin_top = 356.0
+margin_right = 631.0
+margin_bottom = 406.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="IpIn" type="TextEdit" parent="Control"]
+margin_left = 297.0
+margin_top = 288.0
+margin_right = 697.0
+margin_bottom = 328.0
+text = "192.168.1.168"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="playerdest" type="RichTextLabel" parent="Control"]
+margin_left = 7.0
+margin_top = 6.0
+margin_right = 407.0
+margin_bottom = 206.0
 
 [connection signal="toggled" from="Control/CheckButton" to="." method="_on_CheckButton_toggled"]
 [connection signal="button_down" from="Control/Button" to="." method="_on_Button_button_down"]

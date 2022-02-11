@@ -20,11 +20,7 @@ func _physics_process(delta):
 	var cameraloc = cameraorbit.global_transform.origin
 	var diff = cameraloc - playerloc
 	diff = (diff).normalized() * delta * diff.length() 
-	
-#	if diff.x/delta < thresh:
-#		diff.x = 0
-#	if diff.z/delta < thresh:
-#		diff.z = 0
+
 	if not cameraorbit.detached:
 		cameraorbit.global_transform.origin = playerloc
 #		cameraorbit.global_transform.origin.x -= diff.x

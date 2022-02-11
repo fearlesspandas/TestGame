@@ -27,7 +27,11 @@ func getInput() -> Vector3:
 		input.y += 1
 	input = input.normalized()
 	return input
-
+func move_towards_loc(loc:Vector3):
+	var diff = loc - rigid.global_transform.origin
+	rigid.global_transform.origin = loc
+func set_rotation_degrees(rot):
+	rigid.rotation_degrees = rot
 func create_selection(location:Resource):
 	var instance = location.instance()
 	if main_map != null:
@@ -43,19 +47,10 @@ func destroy_selections():
 func handle_left_click():
 	if Input.is_action_just_pressed("clear_waypoints"):
 		pass #send waypoint request
-	if Input.is_action_just_released("click") and not stop_selection and selection_type != null:
-		Server.add_dest(Server.player_id,cursor_ray.intersect_pos,"Waypoint")
+	if Input.is_action_just_pressed("click") and not stop_selection:
+		Server.client_add_dest(Server.player_id,cursor_ray.intersect_pos,"Waypoint")
 func toggle_autopilot():
 	pass #send autopilot request
-func handle_server_location_sync(delta):
-	var loc = Server.get_player_postion(Server.player_id)
-	var basis = Server.get_player_basis(Server.player_id)
-	if loc.length() > 0:
-		rigid.global_transform.origin = loc
-	if not basis.empty():
-		rigid.global_transform.basis.x = basis.x
-		rigid.global_transform.basis.y = basis.y
-		rigid.global_transform.basis.z = basis.z
+
 func _physics_process(delta):
-	handle_server_location_sync(delta)
 	handle_left_click()
