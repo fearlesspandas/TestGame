@@ -15,7 +15,7 @@ func in_transit(player:Object):
 func at_dest(player:Object):
 #	player.rigid.global_transform.origin = player.next_dest
 #	player.rigid.angular_velocity = Vector3()
-	if Input.is_action_just_pressed("click"):
+	if Input.is_action_just_pressed("click") or not player.autopilot_on:
 		player.selections_for_removal.push_back(self)
 		player.next_sel = null
 		player.dest.pop_front()

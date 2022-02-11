@@ -8,14 +8,18 @@ onready var player = get_node("Player")
 onready var rigidplayer = player.get_node("RigidBody")
 onready var cameraorbit = get_node("PlayerCam")
 onready var camera = get_node("PlayerCam/cameraorbit/CameraBody/Camera")
-
+#export(String) var playermovement
 var thresh : float = 1
+
+#func _ready():
+#	var s = load(playermovement)
+#	player.set_script(s)
+#	player.force_update_transform()
 func _physics_process(delta):
 	var playerloc = rigidplayer.global_transform.origin
 	var cameraloc = cameraorbit.global_transform.origin
-	var avg_speed = sqrt(player.moveSpeed_x * player.moveSpeed_x + player.moveSpeed_z * player.moveSpeed_z)
 	var diff = cameraloc - playerloc
-	diff = (diff).normalized() * delta * max (avg_speed,diff.length()) 
+	diff = (diff).normalized() * delta * diff.length() 
 	
 #	if diff.x/delta < thresh:
 #		diff.x = 0

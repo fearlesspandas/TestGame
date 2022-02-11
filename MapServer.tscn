@@ -1,0 +1,41 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://Server.tscn" type="PackedScene" id=2]
+[ext_resource path="res://ServerInfo.gd" type="Script" id=3]
+[ext_resource path="res://entities/SphereCharacter.tscn" type="PackedScene" id=4]
+[ext_resource path="res://entities/Marble.tscn" type="PackedScene" id=5]
+[ext_resource path="res://entities/ClientPlayerMovement.gd" type="Script" id=6]
+[ext_resource path="res://entities/EntityMovement.gd" type="Script" id=7]
+
+[node name="Server" instance=ExtResource( 2 )]
+CharacterModel = ExtResource( 4 )
+PlayerClientModel = ExtResource( 5 )
+EntityMovement = ExtResource( 7 )
+ClientPlayerMovement = ExtResource( 6 )
+
+[node name="ServerInfo" type="Control" parent="." index="0"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PlayerCount" type="Label" parent="ServerInfo" index="0"]
+margin_left = 291.0
+margin_top = 104.0
+margin_right = 691.0
+margin_bottom = 244.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="startserver" type="CheckButton" parent="ServerInfo" index="1"]
+margin_right = 76.0
+margin_bottom = 40.0
+text = "start new server"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="toggled" from="ServerInfo/startserver" to="." method="_on_startserver_toggled"]

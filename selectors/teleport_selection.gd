@@ -22,7 +22,7 @@ func at_dest(player:Object):
 func _on_Area_mouse_entered():
 	player.stop_selection = true
 	print("entered selection")
-	if Input.is_action_just_pressed("click"):
+	if Input.is_action_just_pressed("click") or not player.autopilot_on:
 		var ind = player.selection.find(self)
 		player.selections_for_removal.push_back(player.selection[ind])
 		player.selection.remove(ind)

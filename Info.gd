@@ -37,13 +37,6 @@ func _ready():
 func _on_HTTPRequest_request_completed(result, response_code, headers, body):
 	var json = JSON.parse(body.get_string_from_utf8())
 	#info.text = body.get_string_from_utf8()
-	print(fmod(
-		pow(877302698,
-			80
-			),
-		 2605168747
-		))
-
 
 func _on_Button_toggled(button_pressed):
 	if button_pressed and new_account_selector.toggle_mode:

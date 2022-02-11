@@ -24,6 +24,7 @@ onready var rigid = get_node("RigidBody")
 onready var camera = get_parent().get_node("PlayerCam")
 onready var camerautil:Camera = camera.get_node("Camera")
 onready var cursor_ray = camera.find_node("CursorRay")
+onready var main_map = find_parent("Main")
 func decelerate(value:float) -> float:
 	if value > 0:
 		value -= min(decell,value) 
@@ -53,9 +54,10 @@ func capspeed(value:float) -> float:
 		return value
 func create_selection(location:Resource):
 	var instance = location.instance()
-	get_tree().get_root().get_child(0).add_child(instance)
-	selection.push_back(instance)
-	instance.global_transform.origin = cursor_ray.intersect_pos
+	if main_map != null:
+		main_map.add_child(instance)
+		selection.push_back(instance)
+		instance.global_transform.origin = cursor_ray.intersect_pos
 func destroy_selections():
 	for s in selections_for_removal:
 		get_tree().get_root().get_child(0).remove_child(s)

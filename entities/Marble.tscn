@@ -10,6 +10,5 @@ script = ExtResource( 4 )
 
 [node name="Player" parent="." instance=ExtResource( 2 )]
 script = ExtResource( 3 )
-path_finding_epsiolon = 2.0
 
 [node name="PlayerCam" parent="." instance=ExtResource( 1 )]
