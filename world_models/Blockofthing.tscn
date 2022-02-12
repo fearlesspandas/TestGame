@@ -1,7 +1,10 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Base.gd" type="Script" id=1]
 [ext_resource path="res://world_models/Building.tscn" type="PackedScene" id=2]
+
+[sub_resource type="PhysicsMaterial" id=5]
+bounce = 0.14
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 10000, 1, 10000 )
@@ -12,9 +15,10 @@ size = Vector3( 10000, 1, 10000 )
 albedo_color = Color( 0.611765, 0.101961, 0.101961, 1 )
 
 [sub_resource type="BoxShape" id=4]
-extents = Vector3( 5000, 1, 5000 )
+extents = Vector3( 5000, 0.5, 5000 )
 
 [node name="StaticBody" type="StaticBody"]
+physics_material_override = SubResource( 5 )
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 mesh = SubResource( 1 )

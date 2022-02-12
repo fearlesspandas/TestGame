@@ -12,7 +12,7 @@ var players = {}
 var player_id_relations = {}
 var ip_address = ""
 var connected_clients = 0
-
+var spawn_loc = Vector3(0,3,0)
 var player_input_queue = []
 var player_id:String = "Player"
 onready var server_map = load("res://world_models/Blockofthing.tscn")
@@ -63,7 +63,7 @@ func _server_disconnected() -> void:
 func add_player_client_model():
 	var instance = load("res://ClientMarble.tscn").instance()
 #	instance.set_script(ClientPlayerMovement)
-	instance.global_transform.origin = Vector3(0,5,0)
+	instance.global_transform.origin = spawn_loc
 	instance.set_name("P1")
 	map.add_child(instance)
 	
@@ -109,7 +109,7 @@ remote func record_player_input(id,input,type):
 remote func add_player_entity(id):
 	var instance = load("res://entities/ServerEntity.tscn").instance()
 #	instance.set_script(EntityMovement)
-	instance.global_transform.origin = Vector3(0,5,0)
+	instance.global_transform.origin = spawn_loc
 	instance.set_name(str(id))
 	print("added character model")
 	map.add_child(instance)
@@ -133,10 +133,17 @@ func server_set_player_dest(id,dest):
 remote func client_set_player_dest(dest:Array):
 	map.get_node("P1").get_node("Player").dest = dest
 	map.get_node("P1").get_node("Player").draw_dest()
+func client_toggle_autopilot():
+	rpc("toggle_autopilot",Server.player_id)
 remote func toggle_autopilot(id):
-	var player = map.get_node(str(id))
+	var player = players[id]
 	if player != null:
 		player.toggle_autopilot()
+func client_clear_waypoints():
+	rpc("server_clear_waypoints",Server.player_id)
+remote func server_clear_waypoints(id):
+	players[id].dest = []
+	Server.server_set_player_dest(id,[])
 
 remote func get_player_postion(id) -> Vector3:
 	return players[id].rigid.global_transform.origin

@@ -51,8 +51,10 @@ func set_rotation_degrees(rot,dist):
 		kinematic.rotation_degrees = rot
 
 func handle_left_click():
+	if Input.is_action_just_pressed("toggle_autopilot"):
+		toggle_autopilot()
 	if Input.is_action_just_pressed("clear_waypoints"):
-		pass #send waypoint request
+		Server.client_clear_waypoints()
 	if Input.is_action_just_pressed("click") and not stop_selection and not selection_type == null:
 		var instance = selection_type.instance()
 		instance.global_transform.origin = cursor_ray.intersect_pos
@@ -80,22 +82,6 @@ func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 		moveSpeed_x += accell * input.x * delta
 		moveSpeed_x = capspeed(moveSpeed_x)
 		moveSpeed_z = capspeed(moveSpeed_z)
-func handle_autopilot(delta):
-	if not dest.empty():
-		var next_dest = dest[0]
-		var next = next_dest.location
-		var diff_vec = next - kinematic.global_transform.origin
-		var within_epsilon = diff_vec.length() < path_finding_epsilon
-		handle_movement_speeds(within_epsilon,Vector3(1,1,1),delta)
-		if within_epsilon:
-			pass
-		else:
-			var path = diff_vec
-			var server_path = path #- (last_path * delta * moveSpeed_z * 2)
-#			rigid.set_axis_velocity(path)
-			kinematic.move_and_slide(path,Vector3.UP)
-			last_path = server_path
-#			Server.client_move_entity(server_path,Server.player_id)
 func draw_dest():
 	for s in selections:
 		Server.map.remove_child(s)
@@ -108,17 +94,22 @@ func draw_dest():
 		instance.global_transform.origin = d.location
 		Server.map.add_child(instance)
 		selections.append(instance)
-		
+
+func handle_manual(delta):
+	var input = getInput()
+	var pointer = camera.pointer
+	var dir = pointer.global_transform.basis.z * input.z + pointer.global_transform.basis.x * input.x + Vector3(0,input.y,0)
+	Server.client_move_entity(dir,Server.player_id)
 func handle_semi_pilot(delta):
 	if last_received_position != null:
 		kinematic.global_transform.origin = last_received_position
 		last_received_position = null
-#	else:
-#		handle_autopilot(delta)
-	if Input.is_action_just_pressed("jump"):
-		Server.client_move_entity(Vector3.UP * 10,Server.player_id)
+	if not autopilot_on:
+		handle_manual(delta)
 func toggle_autopilot():
-	pass #send autopilot request
+	Server.client_toggle_autopilot()
+	autopilot_on = not autopilot_on
+	camera.force_attach = not autopilot_on
 
 func _physics_process(delta):
 	handle_left_click()

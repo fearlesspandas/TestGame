@@ -2,6 +2,7 @@ extends Node
 export var accell : float = 2.5
 var decell : float = accell
 export var jumpForce :float = 15
+export var jumpMax: float = jumpForce
 export var gravity : float = 40
 export var MAX_MOVE_SPEED = 4
 export var path_finding_epsiolon : float = 5
@@ -40,8 +41,8 @@ func toggle_autopilot():
 	autopilot_on = not autopilot_on
 func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 	if within_epsilon:
-		decelerate(moveSpeed_z)
-		decelerate(moveSpeed_x)
+		moveSpeed_z = decelerate(moveSpeed_z)
+		moveSpeed_x = decelerate(moveSpeed_x)
 	else:
 		moveSpeed_z += accell * input.z * delta
 		moveSpeed_x += accell * input.x * delta
@@ -57,7 +58,7 @@ func handle_next_dest(delta):
 		var diff_vec = next - rigid.global_transform.origin
 		var within_epsilon = diff_vec.length() < path_finding_epsiolon
 		handle_movement_speeds(within_epsilon,Vector3(1,1,1),delta)
-		if within_epsilon and not dest.size() > 1:
+		if within_epsilon and dest.size() > 1:
 			if next_selection == null:
 				update_next_selection()
 			dest.pop_front()	
@@ -70,8 +71,19 @@ func handle_autopilot(delta):
 	#pop dest on arrival
 	if dest.size() > 0:
 		handle_next_dest(delta)
+func handle_jump_force(shouldjump):
+	if shouldjump:
+		jumpForce-=jumpMax/3
+	else:
+		jumpForce += jumpMax/500
+	jumpForce = clamp(jumpForce,0,jumpMax)
 func handle_dir(path:Vector3):
-	rigid.set_axis_velocity(path)
+	handle_movement_speeds(false,Vector3(1,1,1),1)
+	var normal = path.normalized()
+	var should_jump = normal.y > 0.1 #and jumpForce > jumpMax/3
+	var vec = Vector3(normal.x * moveSpeed_x,normal.y * jumpForce, normal.z * moveSpeed_z )
+	handle_jump_force(should_jump)
+	rigid.set_axis_velocity(vec)
 #func handle_manual(dir:Vector3):
 func handle_sync(delta):
 	Server.server_set_client_player_pos(self.name,rigid.global_transform.origin,rigid.rotation_degrees)
@@ -80,6 +92,9 @@ func handle_sync(delta):
 #	Server.server_set_client_player_basis(self.name,r)
 func _physics_process(delta):
 	handle_sync(delta)
-	handle_autopilot(delta)
+	if autopilot_on:
+		handle_autopilot(delta)
+	else:
+		handle_movement_speeds(true,Vector3(1,1,1),1)
 #	if autopilot_on:
 #		handle_autopilot(delta)
