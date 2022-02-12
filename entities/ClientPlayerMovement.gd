@@ -92,7 +92,7 @@ func handle_autopilot(delta):
 		if within_epsilon:
 			pass
 		else:
-			var path = diff_vec.normalized() * moveSpeed_z
+			var path = diff_vec
 			var server_path = path #- (last_path * delta * moveSpeed_z * 2)
 #			rigid.set_axis_velocity(path)
 			kinematic.move_and_slide(path,Vector3.UP)
