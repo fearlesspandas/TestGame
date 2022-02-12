@@ -11,6 +11,7 @@ var dest = []
 var moveSpeed_z = 0
 var moveSpeed_x = 0
 var last_path = Vector3()
+var last_received_position = null
 #need to include timestamp of last set location
 #maybe reduce location tick rate to about 1/3
 #onready var rigid = find_node("RigidBody")
@@ -40,7 +41,8 @@ func move_towards_loc(loc:Vector3,rot):
 ##		igid.set_axis_velocity(diff)
 #		kinematic.move_and_slide(diff,Vector3.UP)
 #	else:
-	kinematic.global_transform.origin = loc
+#	kinematic.global_transform.origin = loc
+	last_received_position = loc
 	kinematic.rotation_degrees = rot
 func set_rotation_degrees(rot,dist):
 	if dist > 100:
@@ -96,9 +98,17 @@ func handle_autopilot(delta):
 			kinematic.move_and_slide(path,Vector3.UP)
 			last_path = server_path
 #			Server.client_move_entity(server_path,Server.player_id)
+func handle_semi_pilot(delta):
+	if last_received_position != null:
+		kinematic.global_transform.origin = last_received_position
+		last_received_position = null
+	else:
+		var dir = last_path.normalized()
+		kinematic.move_and_slide(dir*moveSpeed_z,Vector3.UP)
 func toggle_autopilot():
 	pass #send autopilot request
 
 func _physics_process(delta):
 	handle_left_click()
-	handle_autopilot(delta)
+	handle_semi_pilot(delta)
+#	handle_autopilot(delta)
