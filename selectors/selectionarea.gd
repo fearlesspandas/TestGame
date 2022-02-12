@@ -9,3 +9,4 @@ func in_transit(player:Object):
 	pass
 func at_dest(player:Object):
 	player.rigid.global_transform.origin = self.global_transform.origin
+	player.rigid.angular_velocity = Vector3()

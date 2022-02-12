@@ -13,6 +13,7 @@ var path : Vector3 = Vector3()
 var moveSpeed_x : float = 0
 var moveSpeed_z : float = 0
 var autopilot_on: bool = true
+var next_selection = null
 onready var rigid = get_node("RigidBody")
 onready var main_map = find_parent("Main")
 
@@ -46,25 +47,23 @@ func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 		moveSpeed_x += accell * input.x * delta
 		moveSpeed_x = capspeed(moveSpeed_x)
 		moveSpeed_z = capspeed(moveSpeed_z)
-		
+func update_next_selection():
+	if next_selection != null:
+		next_selection.call_deferred("free")
+	next_selection = SelectorModelClient.get_resource_by_type(dest[0].type).instance()
 func handle_next_dest(delta):
 		var next_dest = dest[0]
 		var next = next_dest.location
 		var diff_vec = next - rigid.global_transform.origin
 		var within_epsilon = diff_vec.length() < path_finding_epsiolon
 		handle_movement_speeds(within_epsilon,Vector3(1,1,1),delta)
-		if dest.size() == 1 and within_epsilon:
-			var instance = SelectorModelClient.get_resource_by_type(next_dest.type).instance()
-			instance.global_transform.origin = next_dest.location
-			instance.at_dest(self)
-			instance.call_deferred("free")
-		elif within_epsilon:
-			dest.pop_front()
-			var instance = SelectorModelClient.get_resource_by_type(next_dest.type).instance()
-			instance.global_transform.origin = next_dest.location
-			instance.in_transit(self)
+		if within_epsilon and not dest.size() > 1:
+			if next_selection == null:
+				update_next_selection()
+			dest.pop_front()	
+			next_selection.in_transit(self)
 			Server.server_set_player_dest(self.name,self.dest)
-			instance.call_deferred("free")
+			update_next_selection()
 		else:
 			rigid.set_axis_velocity(diff_vec.normalized() * moveSpeed_z)
 func handle_autopilot(delta):
