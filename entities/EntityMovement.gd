@@ -46,20 +46,31 @@ func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 		moveSpeed_x += accell * input.x * delta
 		moveSpeed_x = capspeed(moveSpeed_x)
 		moveSpeed_z = capspeed(moveSpeed_z)
-	
-func handle_autopilot(delta):
-	#pop dest on arrival
-	if dest.size() > 0:
+		
+func handle_next_dest(delta):
 		var next_dest = dest[0]
 		var next = next_dest.location
 		var diff_vec = next - rigid.global_transform.origin
 		var within_epsilon = diff_vec.length() < path_finding_epsiolon
 		handle_movement_speeds(within_epsilon,Vector3(1,1,1),delta)
-		if within_epsilon:
+		if dest.size() == 1 and within_epsilon:
+			var instance = SelectorModelClient.get_resource_by_type(next_dest.type).instance()
+			instance.global_transform.origin = next_dest.location
+			instance.at_dest(self)
+			instance.call_deferred("free")
+		elif within_epsilon:
 			dest.pop_front()
+			var instance = SelectorModelClient.get_resource_by_type(next_dest.type).instance()
+			instance.global_transform.origin = next_dest.location
+			instance.in_transit(self)
 			Server.server_set_player_dest(self.name,self.dest)
+			instance.call_deferred("free")
 		else:
 			rigid.set_axis_velocity(diff_vec.normalized() * moveSpeed_z)
+func handle_autopilot(delta):
+	#pop dest on arrival
+	if dest.size() > 0:
+		handle_next_dest(delta)
 func handle_dir(path:Vector3):
 	rigid.set_axis_velocity(path)
 #func handle_manual(dir:Vector3):

@@ -132,7 +132,7 @@ func server_set_player_dest(id,dest):
 	rpc_unreliable_id(rid,"client_set_player_dest",dest)
 remote func client_set_player_dest(dest:Array):
 	map.get_node("P1").get_node("Player").dest = dest
-	
+	map.get_node("P1").get_node("Player").draw_dest()
 remote func toggle_autopilot(id):
 	var player = map.get_node(str(id))
 	if player != null:

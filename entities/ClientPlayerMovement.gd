@@ -8,10 +8,12 @@ var autopilot_on : bool = true
 var stop_selection: bool = false
 var selection_type : Resource
 var dest = []
+var selections = []
 var moveSpeed_z = 0
 var moveSpeed_x = 0
 var last_path = Vector3()
 var last_received_position = null
+
 #need to include timestamp of last set location
 #maybe reduce location tick rate to about 1/3
 #onready var rigid = find_node("RigidBody")
@@ -47,18 +49,14 @@ func move_towards_loc(loc:Vector3,rot):
 func set_rotation_degrees(rot,dist):
 	if dist > 100:
 		kinematic.rotation_degrees = rot
-#
-#func destroy_selections():
-#	for s in selections_for_removal:
-#		get_tree().get_root().get_child(0).remove_child(s)
-#		if s != null:
-#			s.call_deferred("free")
-#	selections_for_removal = []
+
 func handle_left_click():
 	if Input.is_action_just_pressed("clear_waypoints"):
 		pass #send waypoint request
-	if Input.is_action_just_pressed("click") and not stop_selection:
-		Server.client_add_dest(Server.player_id,cursor_ray.intersect_pos,"Waypoint")
+	if Input.is_action_just_pressed("click") and not stop_selection and not selection_type == null:
+		var instance = selection_type.instance()
+		instance.global_transform.origin = cursor_ray.intersect_pos
+		Server.client_add_dest(Server.player_id,cursor_ray.intersect_pos,instance.type)
 func decelerate(value:float) -> float:
 	if value > 0:
 		value -= min(decell,value) 
@@ -98,12 +96,25 @@ func handle_autopilot(delta):
 			kinematic.move_and_slide(path,Vector3.UP)
 			last_path = server_path
 #			Server.client_move_entity(server_path,Server.player_id)
+func draw_dest():
+	for s in selections:
+		Server.map.remove_child(s)
+		if s != null:
+			s.call_deferred("free")
+			s = null
+	selections = []
+	for d in dest:
+		var instance = SelectorModelClient.get_resource_by_type(d.type).instance()
+		instance.global_transform.origin = d.location
+		Server.map.add_child(instance)
+		selections.append(instance)
+		
 func handle_semi_pilot(delta):
 	if last_received_position != null:
 		kinematic.global_transform.origin = last_received_position
 		last_received_position = null
-	else:
-		handle_autopilot(delta)
+#	else:
+#		handle_autopilot(delta)
 	if Input.is_action_just_pressed("jump"):
 		Server.client_move_entity(Vector3.UP * 10,Server.player_id)
 func toggle_autopilot():
