@@ -11,6 +11,7 @@ onready var pc_label = find_node("PClabel")
 onready var control = find_node("Control")
 onready var playerpos = find_node("playerpos")
 onready var playerdest = find_node("playerdest")
+onready var username = find_node("username")
 func _ready():
 	get_tree().connect("network_peer_connected", self, "_player_connected")
 	get_tree().connect("network_peer_disconnected", self, "_player_disconnected")
@@ -26,6 +27,7 @@ func _process(delta):
 		dests += " " + str(p) + " destinations: " + str(Server.players[p].dest)
 	playerpos.text = poses 
 	playerdest.text = dests
+	Server.player_id = username.text
 	if Input.is_action_just_pressed("escape"):
 		control.visible = not control.visible
 func _player_connected():
@@ -47,3 +49,7 @@ func _on_Button_button_down():
 			Server.ip_address = ip_in.text
 			Server.join_server()
 			control.visible = false
+
+
+func _on_username_text_changed():
+	Server.player_id = username.text

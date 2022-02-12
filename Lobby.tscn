@@ -35,10 +35,10 @@ __meta__ = {
 }
 
 [node name="IpLabel" type="Label" parent="Control"]
-margin_left = 441.0
-margin_top = 276.0
-margin_right = 541.0
-margin_bottom = 306.0
+margin_left = 439.0
+margin_top = 261.0
+margin_right = 539.0
+margin_bottom = 291.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -54,10 +54,10 @@ __meta__ = {
 }
 
 [node name="playerpos" type="Label" parent="Control"]
-margin_left = 431.0
-margin_top = 356.0
-margin_right = 631.0
-margin_bottom = 406.0
+margin_left = 399.0
+margin_top = 390.0
+margin_right = 599.0
+margin_bottom = 440.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -78,5 +78,16 @@ margin_top = 6.0
 margin_right = 407.0
 margin_bottom = 206.0
 
+[node name="username" type="TextEdit" parent="Control"]
+margin_left = 299.0
+margin_top = 338.0
+margin_right = 699.0
+margin_bottom = 378.0
+text = "username"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [connection signal="toggled" from="Control/CheckButton" to="." method="_on_CheckButton_toggled"]
 [connection signal="button_down" from="Control/Button" to="." method="_on_Button_button_down"]
+[connection signal="text_changed" from="Control/username" to="." method="_on_username_text_changed"]

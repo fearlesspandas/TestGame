@@ -14,7 +14,7 @@ var ip_address = ""
 var connected_clients = 0
 
 var player_input_queue = []
-var player_id:String = "Landon"
+var player_id:String = "Player"
 onready var server_map = load("res://world_models/Blockofthing.tscn")
 onready var client_map = load("res://ClientMap.tscn")
 var map
