@@ -50,7 +50,6 @@ func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 func handle_autopilot(delta):
 	#pop dest on arrival
 	if dest.size() > 0:
-		print("moving")
 		var next_dest = dest[0]
 		var next = next_dest.location
 		var diff_vec = next - rigid.global_transform.origin
@@ -62,7 +61,6 @@ func handle_autopilot(delta):
 		else:
 			rigid.set_axis_velocity(diff_vec.normalized() * moveSpeed_z)
 func handle_dir(path:Vector3):
-	print("received path",path)
 	rigid.set_axis_velocity(path)
 #func handle_manual(dir:Vector3):
 func handle_sync(delta):

@@ -113,8 +113,8 @@ remote func add_player_entity(id):
 	instance.set_name(str(id))
 	print("added character model")
 	map.add_child(instance)
-	players[player_id] = instance
-	player_id_relations[player_id] = get_tree().get_rpc_sender_id()
+	players[id] = instance
+	player_id_relations[id] = get_tree().get_rpc_sender_id()
 	
 remote func remove_player_entity(id):
 	var node = map.get_node(str(id))

@@ -102,6 +102,8 @@ func handle_semi_pilot(delta):
 	if last_received_position != null:
 		kinematic.global_transform.origin = last_received_position
 		last_received_position = null
+	else:
+		handle_autopilot(delta)
 	if Input.is_action_just_pressed("jump"):
 		Server.client_move_entity(Vector3.UP * 10,Server.player_id)
 func toggle_autopilot():
