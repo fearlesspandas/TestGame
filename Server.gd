@@ -18,6 +18,7 @@ var player_id:String = "Landon"
 onready var server_map = load("res://world_models/Blockofthing.tscn")
 onready var client_map = load("res://ClientMap.tscn")
 var map
+
 func _ready():
 	for ip in IP.get_local_addresses():
 		if ip.begins_with("192.168"):
@@ -38,82 +39,110 @@ func create_server() -> void:
 	map.set_name("Map")
 	map.global_transform.origin = Vector3()
 	add_child(map)
+	
 func join_server() -> void:
 	client = NetworkedMultiplayerENet.new()
 	client.create_client(ip_address,DEFAULT_PORT)
-	
 	get_tree().set_network_peer(client)
+	
 func _connected_to_server() -> void:
 	rpc("increase_connected")
 	rpc("add_player_entity",player_id)
 	map = client_map.instance()
 	map.set_name("Map")
+	map.global_transform.origin = Vector3()
 	add_player_client_model()
 	add_child(map)
 	print("successfully connected")
+	
 func _server_disconnected() -> void:
 	rpc("remove_player_entity",player_id)
 	rpc("decrease_connected")
 	print("disconnected from server")	
+	
 func add_player_client_model():
 	var instance = load("res://ClientMarble.tscn").instance()
 #	instance.set_script(ClientPlayerMovement)
-	instance.global_transform.origin = Vector3(0,3,0)
+	instance.global_transform.origin = Vector3(0,5,0)
 	instance.set_name("P1")
 	map.add_child(instance)
-remote func set_client_player_pos(loc:Vector3):
-	map.get_node("P1").get_node("Player").move_towards_loc(loc)
+	
+remote func set_client_player_pos(loc:Vector3,rot):
+	map.get_node("P1").get_node("Player").move_towards_loc(loc,rot)
+	
 remote func set_client_rotation_deg(rot):
 	map.get_node("P1").get_node("Player").set_rotation_degrees(rot)
+	
 remote func set_client_player_basis(basis:Basis):
 	map.get_node("P1").get_node("Player").rigid.global_transform.basis = basis
+	
 func server_set_client_rotation_deg(id,rot):
 	var rid = player_id_relations[id]
-	rpc_id(rid,"set_client_rotation_deg",rot)
-func server_set_client_player_pos(id,loc):
+	rpc_unreliable_id(rid,"set_client_rotation_deg",rot)
+	
+func server_set_client_player_pos(id,loc,rot):
 	var rid = player_id_relations[id]
-	rpc_id(rid,"set_client_player_pos",loc)
+	rpc_unreliable_id(rid,"set_client_player_pos",loc,rot)
+	
 func server_set_client_player_basis(id,basis:Basis):
 	var rid = player_id_relations[id]
-	rpc_id(rid,"set_client_player_basis",basis)
+	rpc_unreliable_id(rid,"set_client_player_basis",basis)
+	
 func client_add_dest(id,loc,type):
 	rpc("add_dest",id,loc,type)
+	
+func client_move_entity(path:Vector3,id):
+	rpc_unreliable("server_move_entity",path,id)
+	
+remote func server_move_entity(path:Vector3,id):
+	players[id].handle_dir(path)
+	
 remotesync func increase_connected():
 	connected_clients += 1
+	
 remotesync func decrease_connected():
 	connected_clients -= 1
+	
 remote func record_player_input(id,input,type):
 	player_input_queue.append({"id":id,"input":input,"type":type})
+	
 remote func add_player_entity(id):
 	var instance = load("res://entities/ServerEntity.tscn").instance()
 #	instance.set_script(EntityMovement)
-	instance.global_transform.origin = Vector3(0,3,0)
+	instance.global_transform.origin = Vector3(0,5,0)
 	instance.set_name(str(id))
 	print("added character model")
 	map.add_child(instance)
 	players[player_id] = instance
 	player_id_relations[player_id] = get_tree().get_rpc_sender_id()
+	
 remote func remove_player_entity(id):
 	var node = map.get_node(str(id))
 	map.remove_child(node)
 	if node != null:
 		node.call_deferred("free")
+		
 remote func add_dest(id,loc,type):
 	var player = map.get_node(str(id))
 	if player != null:
 		player.add_dest(loc,type)
+
+func server_set_player_dest(id,dest):
+	var rid = player_id_relations[id]
+	rpc_unreliable_id(rid,"client_set_player_dest",dest)
+remote func client_set_player_dest(dest:Array):
+	map.get_node("P1").get_node("Player").dest = dest
+	
 remote func toggle_autopilot(id):
 	var player = map.get_node(str(id))
 	if player != null:
 		player.toggle_autopilot()
 
 remote func get_player_postion(id) -> Vector3:
-	print("getting pos")
 	return players[id].rigid.global_transform.origin
 remote func get_player_basis(id) -> Dictionary:
 	var player = players[id].rigid
 	var basis = player.global_transform.basis
-	print(basis.x,basis.y,basis.z)
 	return {"x":basis.x,"y":basis.y,"z":basis.z}
 	
 func _on_startserver_toggled(button_pressed):

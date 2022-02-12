@@ -18,6 +18,7 @@ onready var main_map = find_parent("Main")
 
 func add_dest(loc,type):
 	dest.append({"type":type,"location":loc})
+	Server.server_set_player_dest(self.name,self.dest)
 #func remove_dest(loc,)
 func decelerate(value:float) -> float:
 	if value > 0:
@@ -47,6 +48,7 @@ func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 		moveSpeed_z = capspeed(moveSpeed_z)
 	
 func handle_autopilot(delta):
+	#pop dest on arrival
 	if dest.size() > 0:
 		print("moving")
 		var next_dest = dest[0]
@@ -56,17 +58,20 @@ func handle_autopilot(delta):
 		handle_movement_speeds(within_epsilon,Vector3(1,1,1),delta)
 		if within_epsilon:
 			dest.pop_front()
+			Server.server_set_player_dest(self.name,self.dest)
 		else:
-			print(rigid.global_transform.origin)
-			print(diff_vec)
 			rigid.set_axis_velocity(diff_vec.normalized() * moveSpeed_z)
+func handle_dir(path:Vector3):
+	print("received path",path)
+	rigid.set_axis_velocity(path)
 #func handle_manual(dir:Vector3):
 func handle_sync(delta):
-	Server.server_set_client_player_pos(self.name,rigid.global_transform.origin)
-	var r = rigid.global_transform.basis
-	Server.server_set_client_rotation_deg(self.name,rigid.rotation_degrees)
+	Server.server_set_client_player_pos(self.name,rigid.global_transform.origin,rigid.rotation_degrees)
+#	Server.server_set_client_rotation_deg(self.name,rigid.rotation_degrees)
+	
 #	Server.server_set_client_player_basis(self.name,r)
 func _physics_process(delta):
 	handle_sync(delta)
-	if autopilot_on:
-		handle_autopilot(delta)
+	handle_autopilot(delta)
+#	if autopilot_on:
+#		handle_autopilot(delta)

@@ -5,7 +5,7 @@ extends Spatial
 # var a = 2
 # var b = "text"
 onready var player = get_node("Player")
-onready var rigidplayer = player.get_node("RigidBody")
+onready var rigidplayer = player.get_node("KinematicBody")
 onready var cameraorbit = get_node("PlayerCam")
 onready var camera = get_node("PlayerCam/cameraorbit/CameraBody/Camera")
 #export(String) var playermovement
