@@ -69,8 +69,9 @@ func add_player_client_model():
 	
 	
 remote func client_set_entity_player_pos(loc,rot,id):
-	client_entities[id].last_known_position = loc
-	client_entities[id].rotation_degrees = rot
+	var entity = map.get_node(str(id))
+	entity.last_known_position = loc
+	entity.kinematic.rotation_degrees = rot
 remote func server_set_entity_player_pos(entityid,pid)	:
 	if get_tree().is_network_server() and players.has(entityid):
 		var rid = player_id_relations[pid]
@@ -176,9 +177,10 @@ remote func client_set_player_dest(dest:Array):
 func client_toggle_autopilot():
 	rpc("toggle_autopilot",Server.player_id)
 remote func toggle_autopilot(id):
-	var player = players[id]
-	if player != null and get_tree().is_network_server():
-		player.toggle_autopilot()
+	if  get_tree().is_network_server():
+		var player = players[id]
+		if player != null :
+			player.toggle_autopilot()
 func client_clear_waypoints():
 	rpc("server_clear_waypoints",Server.player_id)
 remote func server_clear_waypoints(id):
