@@ -16,6 +16,7 @@ func set_rotation_degrees(rot):
 func handle_position():
 	if last_known_position != null:
 		kinematic.global_transform.origin = last_known_position
+		print(player_id,kinematic.global_transform.origin,last_known_position)
 		last_known_position = null
 func _physics_process(delta):
 	get_position_from_server()

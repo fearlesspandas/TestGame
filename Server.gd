@@ -72,7 +72,7 @@ remote func client_set_entity_player_pos(loc,rot,id):
 	client_entities[id].last_known_position = loc
 	client_entities[id].rotation_degrees = rot
 remote func server_set_entity_player_pos(entityid,pid)	:
-	if players.has(entityid):
+	if get_tree().is_network_server() and players.has(entityid):
 		var rid = player_id_relations[pid]
 		var entity = players[entityid]
 		var loc = entity.global_transform.origin
@@ -92,16 +92,19 @@ remote func set_client_player_basis(basis:Basis):
 	map.get_node("P1").get_node("Player").rigid.global_transform.basis = basis
 	
 func server_set_client_rotation_deg(id,rot):
-	var rid = player_id_relations[id]
-	rpc_unreliable_id(rid,"set_client_rotation_deg",rot)
+	if get_tree().is_network_server():
+		var rid = player_id_relations[id]
+		rpc_unreliable_id(rid,"set_client_rotation_deg",rot)
 	
 func server_set_client_player_pos(id,loc,rot):
-	var rid = player_id_relations[id]
-	rpc_unreliable_id(rid,"set_client_player_pos",loc,rot)
+	if get_tree().is_network_server():
+		var rid = player_id_relations[id]
+		rpc_unreliable_id(rid,"set_client_player_pos",loc,rot)
 	
 func server_set_client_player_basis(id,basis:Basis):
-	var rid = player_id_relations[id]
-	rpc_unreliable_id(rid,"set_client_player_basis",basis)
+	if get_tree().is_network_server():
+		var rid = player_id_relations[id]
+		rpc_unreliable_id(rid,"set_client_player_basis",basis)
 	
 func client_add_dest(id,loc,type):
 	rpc("add_dest",id,loc,type)
@@ -110,7 +113,8 @@ func client_move_entity(path:Vector3,id):
 	rpc_unreliable("server_move_entity",path,id)
 	
 remote func server_move_entity(path:Vector3,id):
-	players[id].handle_dir(path)
+	if get_tree().is_network_server():
+		players[id].handle_dir(path)
 	
 remotesync func increase_connected():
 	connected_clients += 1
@@ -124,6 +128,7 @@ remote func record_player_input(id,input,type):
 remote func client_add_entity(id):
 	var instance = load("res://entities/ClientEntity.tscn").instance()
 	instance.player_id = id
+	instance.name = player_id
 	map.add_child(instance)
 	client_entities[id] = instance
 func server_broadcast_players(to_id):
@@ -156,13 +161,15 @@ remote func remove_player_entity(id):
 		node.call_deferred("free")
 		
 remote func add_dest(id,loc,type):
-	var player = map.get_node(str(id))
-	if player != null:
-		player.add_dest(loc,type)
-
+	if get_tree().is_network_server():
+		var player = map.get_node(str(id))
+		if player != null:
+			player.add_dest(loc,type)
+	
 func server_set_player_dest(id,dest):
-	var rid = player_id_relations[id]
-	rpc_unreliable_id(rid,"client_set_player_dest",dest)
+	if get_tree().is_network_server():
+		var rid = player_id_relations[id]
+		rpc_unreliable_id(rid,"client_set_player_dest",dest)
 remote func client_set_player_dest(dest:Array):
 	map.get_node("P1").get_node("Player").dest = dest
 	map.get_node("P1").get_node("Player").draw_dest()
@@ -170,20 +177,14 @@ func client_toggle_autopilot():
 	rpc("toggle_autopilot",Server.player_id)
 remote func toggle_autopilot(id):
 	var player = players[id]
-	if player != null:
+	if player != null and get_tree().is_network_server():
 		player.toggle_autopilot()
 func client_clear_waypoints():
 	rpc("server_clear_waypoints",Server.player_id)
 remote func server_clear_waypoints(id):
-	players[id].dest = []
-	Server.server_set_player_dest(id,[])
-
-remote func get_player_postion(id) -> Vector3:
-	return players[id].rigid.global_transform.origin
-remote func get_player_basis(id) -> Dictionary:
-	var player = players[id].rigid
-	var basis = player.global_transform.basis
-	return {"x":basis.x,"y":basis.y,"z":basis.z}
+	if get_tree().is_network_server():
+		players[id].dest = []
+		Server.server_set_player_dest(id,[])
 	
 func _on_startserver_toggled(button_pressed):
 	if button_pressed:
