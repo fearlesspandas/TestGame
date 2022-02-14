@@ -87,6 +87,7 @@ func handle_dir(path:Vector3):
 #func handle_manual(dir:Vector3):
 func handle_sync(delta):
 	Server.server_set_client_player_pos(self.name,rigid.global_transform.origin,rigid.rotation_degrees)
+	Server.server_set_entity_player_pos2(self.name,rigid.global_transform.origin,rigid.rotation_degrees)
 #	Server.server_set_client_rotation_deg(self.name,rigid.rotation_degrees)
 	
 #	Server.server_set_client_player_basis(self.name,r)

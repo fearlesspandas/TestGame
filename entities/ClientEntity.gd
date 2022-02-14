@@ -19,5 +19,5 @@ func handle_position():
 		print(player_id,kinematic.global_transform.origin,last_known_position)
 		last_known_position = null
 func _physics_process(delta):
-	get_position_from_server()
+#	get_position_from_server()
 	handle_position()

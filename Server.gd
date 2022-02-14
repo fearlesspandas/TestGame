@@ -69,9 +69,13 @@ func add_player_client_model():
 	
 	
 remote func client_set_entity_player_pos(loc,rot,id):
-	var entity = map.get_node(str(id))
-	entity.last_known_position = loc
-	entity.kinematic.rotation_degrees = rot
+	if id != player_id:
+		var entity = client_entities[id]
+		if entity != null:
+			entity.last_known_position = loc
+			entity.kinematic.rotation_degrees = rot
+remote func server_set_entity_player_pos2(entityid,loc,rot):
+	rpc_unreliable("client_set_entity_player_pos",loc,rot,entityid)
 remote func server_set_entity_player_pos(entityid,pid)	:
 	if get_tree().is_network_server() and players.has(entityid):
 		var rid = player_id_relations[pid]
