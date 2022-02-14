@@ -15,6 +15,7 @@ var connected_clients = 0
 var spawn_loc = Vector3(0,3,0)
 var player_input_queue = []
 var player_id:String = "Player"
+var client_entities = {}
 onready var server_map = load("res://world_models/Blockofthing.tscn")
 onready var client_map = load("res://ClientMap.tscn")
 var map
@@ -27,9 +28,7 @@ func _ready():
 	get_tree().connect("network_peer_disconnected", self, "_player_disconnected")
 	get_tree().connect("connected_to_server",self,"_connected_to_server")
 	get_tree().connect("server_disconnected",self,"_server_disconnected")
-#func _process(delta):
-#	if map != null:
-#		print(map.get_child_count())
+	
 func create_server() -> void:
 	print("creating server")
 	server = NetworkedMultiplayerENet.new()
@@ -60,12 +59,28 @@ func _server_disconnected() -> void:
 	rpc("decrease_connected")
 	print("disconnected from server")	
 	
+	
 func add_player_client_model():
 	var instance = load("res://ClientMarble.tscn").instance()
 #	instance.set_script(ClientPlayerMovement)
 	instance.global_transform.origin = spawn_loc
 	instance.set_name("P1")
 	map.add_child(instance)
+	
+	
+remote func client_set_entity_player_pos(loc,rot,id):
+	client_entities[id].last_known_position = loc
+	client_entities[id].rotation_degrees = rot
+remote func server_set_entity_player_pos(entityid,pid)	:
+	if players.has(entityid):
+		var rid = player_id_relations[pid]
+		var entity = players[entityid]
+		var loc = entity.global_transform.origin
+		var rot = entity.rotation_degrees
+		rpc_unreliable_id(rid,"client_set_entity_player_pos",loc,rot,entityid)
+func client_call_server_set_entity(entityid,pid):
+	rpc_unreliable("server_set_entity_player_pos",entityid,pid)
+	
 	
 remote func set_client_player_pos(loc:Vector3,rot):
 	map.get_node("P1").get_node("Player").move_towards_loc(loc,rot)
@@ -106,6 +121,22 @@ remotesync func decrease_connected():
 remote func record_player_input(id,input,type):
 	player_input_queue.append({"id":id,"input":input,"type":type})
 	
+remote func client_add_entity(id):
+	var instance = load("res://entities/ClientEntity.tscn").instance()
+	instance.player_id = id
+	map.add_child(instance)
+	client_entities[id] = instance
+func server_broadcast_players(to_id):
+	var rid = player_id_relations[to_id]
+	for p_k in players.keys():
+		if p_k != to_id:
+			rpc_id(rid,"client_add_entity",p_k)	
+func server_broadcast_new_entity(id):
+	for p_k in players.keys():
+		if p_k != id:
+			var rid = player_id_relations[p_k]
+			rpc_id(rid,"client_add_entity",id)
+		
 remote func add_player_entity(id):
 	var instance = load("res://entities/ServerEntity.tscn").instance()
 #	instance.set_script(EntityMovement)
@@ -115,6 +146,8 @@ remote func add_player_entity(id):
 	map.add_child(instance)
 	players[id] = instance
 	player_id_relations[id] = get_tree().get_rpc_sender_id()
+	server_broadcast_new_entity(id)
+	server_broadcast_players(id)
 	
 remote func remove_player_entity(id):
 	var node = map.get_node(str(id))
