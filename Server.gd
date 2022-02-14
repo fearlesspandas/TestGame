@@ -129,7 +129,7 @@ remote func record_player_input(id,input,type):
 remote func client_add_entity(id):
 	var instance = load("res://entities/ClientEntity.tscn").instance()
 	instance.player_id = id
-	instance.name = player_id
+	instance.set_name(str(player_id))
 	map.add_child(instance)
 	client_entities[id] = instance
 func server_broadcast_players(to_id):
@@ -144,16 +144,17 @@ func server_broadcast_new_entity(id):
 			rpc_id(rid,"client_add_entity",id)
 		
 remote func add_player_entity(id):
-	var instance = load("res://entities/ServerEntity.tscn").instance()
-#	instance.set_script(EntityMovement)
-	instance.global_transform.origin = spawn_loc
-	instance.set_name(str(id))
-	print("added character model")
-	map.add_child(instance)
-	players[id] = instance
-	player_id_relations[id] = get_tree().get_rpc_sender_id()
-	server_broadcast_new_entity(id)
-	server_broadcast_players(id)
+	if get_tree().is_network_server():
+		var instance = load("res://entities/ServerEntity.tscn").instance()
+	#	instance.set_script(EntityMovement)
+		instance.global_transform.origin = spawn_loc
+		instance.set_name(str(id))
+		print("added character model")
+		map.add_child(instance)
+		players[id] = instance
+		player_id_relations[id] = get_tree().get_rpc_sender_id()
+		server_broadcast_new_entity(id)
+		server_broadcast_players(id)
 	
 remote func remove_player_entity(id):
 	var node = map.get_node(str(id))
