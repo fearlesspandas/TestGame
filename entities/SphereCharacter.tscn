@@ -1,37 +1,10 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://entities/BeltOrbit.gd" type="Script" id=1]
+[ext_resource path="res://entities/CharacterMesh.tscn" type="PackedScene" id=2]
 
 [sub_resource type="PhysicsMaterial" id=6]
 bounce = 0.27
-
-[sub_resource type="OpenSimplexNoise" id=19]
-seed = 7
-octaves = 9
-period = 4.6
-persistence = 0.446
-lacunarity = 4.0
-
-[sub_resource type="NoiseTexture" id=8]
-noise = SubResource( 19 )
-
-[sub_resource type="AnimatedTexture" id=20]
-frames = 2
-frame_1/delay_sec = 0.0
-
-[sub_resource type="AtlasTexture" id=10]
-atlas = SubResource( 20 )
-
-[sub_resource type="SpatialMaterial" id=21]
-albedo_color = Color( 0.333333, 0.211765, 0.333333, 1 )
-albedo_texture = SubResource( 8 )
-metallic_texture = SubResource( 10 )
-metallic_texture_channel = 2
-subsurf_scatter_enabled = true
-subsurf_scatter_strength = 0.0
-
-[sub_resource type="SphereMesh" id=3]
-material = SubResource( 21 )
 
 [sub_resource type="CylinderMesh" id=4]
 height = 0.182
@@ -76,10 +49,7 @@ roughness_texture = SubResource( 24 )
 [node name="RigidBody" type="RigidBody" parent="."]
 physics_material_override = SubResource( 6 )
 
-[node name="MeshInstance" type="MeshInstance" parent="RigidBody"]
-mesh = SubResource( 3 )
-skeleton = NodePath("")
-material/0 = null
+[node name="CharacterMesh" parent="RigidBody" instance=ExtResource( 2 )]
 
 [node name="Belt" type="MeshInstance" parent="RigidBody"]
 mesh = SubResource( 4 )

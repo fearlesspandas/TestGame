@@ -4,7 +4,8 @@
 [ext_resource path="res://world_models/Building.tscn" type="PackedScene" id=2]
 
 [sub_resource type="PhysicsMaterial" id=5]
-bounce = 0.14
+friction = 0.34
+bounce = 1.0
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 10000, 1, 10000 )

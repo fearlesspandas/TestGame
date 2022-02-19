@@ -16,6 +16,7 @@ var spawn_loc = Vector3(0,3,0)
 var player_input_queue = []
 var player_id:String = "Player"
 var client_entities = {}
+var client_session_id = ""
 onready var server_map = load("res://world_models/Blockofthing.tscn")
 onready var client_map = load("res://ClientMap.tscn")
 var map

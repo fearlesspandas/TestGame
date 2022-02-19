@@ -1,0 +1,57 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://ui/PlayerProfile.gd" type="Script" id=1]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="username" type="RichTextLabel" parent="."]
+margin_right = 261.0
+margin_bottom = 47.0
+rect_scale = Vector2( 1.58336, 1.58336 )
+
+[node name="Button" type="Button" parent="."]
+margin_left = 431.0
+margin_top = 62.0
+margin_right = 580.0
+margin_bottom = 134.0
+text = "Connect"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="pubkeylabel" type="RichTextLabel" parent="."]
+margin_left = 4.0
+margin_top = 203.0
+margin_right = 87.0
+margin_bottom = 227.0
+rect_scale = Vector2( 2.19831, 2.19831 )
+text = "public Key"
+
+[node name="copy_public_key" type="Button" parent="."]
+margin_left = 371.0
+margin_top = 219.0
+margin_right = 565.0
+margin_bottom = 304.0
+rect_scale = Vector2( 1.42332, 1.42332 )
+text = "Copy Public Key to Clipboard"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
+
+[node name="info" type="RichTextLabel" parent="."]
+margin_left = 344.0
+margin_top = 384.0
+margin_right = 833.0
+margin_bottom = 567.0
+
+[connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]
+[connection signal="pressed" from="copy_public_key" to="." method="_on_copy_public_key_pressed"]
+[connection signal="request_completed" from="HTTPRequest" to="." method="_on_HTTPRequest_request_completed"]

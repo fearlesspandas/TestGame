@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://PlayerProfiles.gd" type="Script" id=1]
+[ext_resource path="res://ui/PlayerProfile.tscn" type="PackedScene" id=2]
+[ext_resource path="res://ui/CreateUserModal.tscn" type="PackedScene" id=3]
+
+[node name="TabContainer" type="TabContainer"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -512.0
+margin_top = -300.0
+margin_right = 512.0
+margin_bottom = 300.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+PlayerProfile = ExtResource( 2 )
+CreateUser = ExtResource( 3 )

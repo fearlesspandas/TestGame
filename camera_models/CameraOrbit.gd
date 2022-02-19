@@ -60,25 +60,18 @@ func getInput() -> Vector3:
 	input = input.normalized()
 	return input
 func refocus_camera():
-#	camera.rotation_degrees = self.rotation_degrees + initial_angles_diff
-#	camera.global_transform.origin = self.global_transform.origin - initial_pos_diff
 	camera.global_transform.basis = initbasis_refocus_camera
 	camera.global_transform.origin = initpos_refocus_camera
 	var self_rot = camera.rotation_degrees
 	self.rotation_degrees = Vector3(0,0,0)
-#	self.rotation_degrees.y = self_rot.y
 	camera.look_at(self.global_transform.origin,Vector3.UP)
 	var campos = camera.global_transform.origin
 	var cambasis = camera.global_transform.basis
 	self.look_at(camera.global_transform.origin,Vector3.UP)
 	self.global_transform.basis.x *= -1
-#	self.global_transform.basis.y *= -1
 	self.global_transform.basis.x *= -1
 	camera.global_transform.origin = campos
 	camera.global_transform.basis = cambasis
-#	camera.global_transform.basis = initbasis_refocus_camera
-#	camera.global_transform.origin = initpos_refocus_camera
-	
 	free_moving = false
 	detached = false
 func prep_free_moving():
@@ -89,6 +82,7 @@ func prep_free_moving():
 	camera.global_transform.basis = camera_basis
 	initpos_refocus_camera = camera_pos
 	initbasis_refocus_camera = camera_basis
+	
 func _physics_process(delta):
 	var input = getInput()
 	if input.length() > 0 and not force_attach:
@@ -97,14 +91,19 @@ func _physics_process(delta):
 		detached = true
 		var dir =( (camera.global_transform.basis.z * input.z) + (camera.global_transform.basis.x * input.x) -Vector3(0,input.y,0) ) * delta * moveDelta
 		global_transform.origin -= dir
+	if Input.is_action_just_pressed("escape"):
+		stop_movement = not stop_movement
+		
+	if stop_movement:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	if Input.is_action_just_pressed("right_click") and not stop_movement:
 		free_moving = not free_moving
 		if free_moving:
 			prep_free_moving()
 		else:
 			refocus_camera()
-#	if Input.is_action_just_pressed("middle_click"):
-#		stop_movements = not stop_movements
 	free_moving = free_moving or detached
 	pointer.visible = not detached
 	if Input.is_action_pressed("refocus_camera"):

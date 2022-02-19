@@ -1,0 +1,112 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://ui/CreateNewUser.gd" type="Script" id=1]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Background" type="ColorRect" parent="."]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0.0431373, 0.537255, 0.52549, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="username_in" type="TextEdit" parent="Background"]
+margin_left = 669.0
+margin_top = 80.0
+margin_right = 799.0
+margin_bottom = 100.0
+rect_scale = Vector2( 2.38926, 2.38926 )
+text = "username"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="new_key" type="TextEdit" parent="Background"]
+visible = false
+margin_left = 13.0
+margin_top = 364.0
+margin_right = 1011.0
+margin_bottom = 586.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="info_label" type="RichTextLabel" parent="Background"]
+margin_left = 5.0
+margin_top = 207.0
+margin_right = 1019.0
+margin_bottom = 325.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="generate_key" type="Button" parent="Background"]
+margin_left = 673.0
+margin_top = 141.0
+margin_right = 905.0
+margin_bottom = 168.0
+rect_scale = Vector2( 1.28683, 1.28683 )
+text = "generate new private key"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="UserList" type="ItemList" parent="Background"]
+margin_left = 40.0
+margin_top = 20.0
+margin_right = 385.0
+margin_bottom = 143.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="Background"]
+margin_left = 57.0
+margin_top = 155.0
+margin_right = 350.0
+margin_bottom = 196.0
+text = "Import User"
+
+[node name="middlebar" type="ColorRect" parent="."]
+margin_left = 435.0
+margin_top = 3.0
+margin_right = 445.0
+margin_bottom = 203.0
+color = Color( 0.0666667, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="middlebar2" type="ColorRect" parent="."]
+margin_left = 539.0
+margin_top = 3.0
+margin_right = 549.0
+margin_bottom = 203.0
+color = Color( 0.0666667, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+margin_left = 463.0
+margin_top = 92.0
+margin_right = 503.0
+margin_bottom = 132.0
+rect_scale = Vector2( 2.83193, 2.83193 )
+text = "OR"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
+
+[connection signal="pressed" from="Background/generate_key" to="." method="_on_generate_key_pressed"]

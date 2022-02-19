@@ -1,0 +1,26 @@
+[gd_scene format=2]
+
+[node name="Control" type="Control"]
+margin_right = 130.0
+margin_bottom = 90.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Username" type="RichTextLabel" parent="."]
+margin_right = 130.0
+margin_bottom = 20.0
+text = "username"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="."]
+margin_left = 9.0
+margin_top = 35.0
+margin_right = 99.0
+margin_bottom = 55.0
+text = "Logout"
+__meta__ = {
+"_edit_use_anchors_": false
+}

@@ -39,11 +39,6 @@ func getInput() -> Vector3:
 	return input
 func move_towards_loc(loc:Vector3,rot):
 	var diff = (loc) - kinematic.global_transform.origin
-#	if  diff.length() < path_finding_epsilon * 3:
-##		igid.set_axis_velocity(diff)
-#		kinematic.move_and_slide(diff,Vector3.UP)
-#	else:
-#	kinematic.global_transform.origin = loc
 	last_received_position = loc
 	kinematic.rotation_degrees = rot
 func set_rotation_degrees(rot,dist):
@@ -59,6 +54,7 @@ func handle_left_click():
 		var instance = selection_type.instance()
 		instance.global_transform.origin = cursor_ray.intersect_pos
 		Server.client_add_dest(Server.player_id,cursor_ray.intersect_pos,instance.type)
+		
 func decelerate(value:float) -> float:
 	if value > 0:
 		value -= min(decell,value) 
@@ -73,6 +69,7 @@ func capspeed(value:float) -> float:
 		return -MAX_MOVE_SPEED
 	else:
 		return value
+		
 func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 	if within_epsilon:
 		decelerate(moveSpeed_z)
@@ -82,6 +79,7 @@ func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 		moveSpeed_x += accell * input.x * delta
 		moveSpeed_x = capspeed(moveSpeed_x)
 		moveSpeed_z = capspeed(moveSpeed_z)
+		
 func draw_dest():
 	for s in selections:
 		Server.map.remove_child(s)
@@ -100,12 +98,14 @@ func handle_manual(delta):
 	var pointer = camera.pointer
 	var dir = pointer.global_transform.basis.z * input.z + pointer.global_transform.basis.x * input.x + Vector3(0,input.y,0)
 	Server.client_move_entity(dir,Server.player_id)
+	
 func handle_semi_pilot(delta):
 	if last_received_position != null:
 		kinematic.global_transform.origin = last_received_position
 		last_received_position = null
 	if not autopilot_on:
 		handle_manual(delta)
+		
 func toggle_autopilot():
 	Server.client_toggle_autopilot()
 	autopilot_on = not autopilot_on

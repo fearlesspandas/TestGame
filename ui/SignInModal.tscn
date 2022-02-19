@@ -1,0 +1,29 @@
+[gd_scene format=2]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -894.0
+margin_bottom = -510.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+margin_right = 130.0
+margin_bottom = 20.0
+text = "Sign In"
+
+[node name="TextEdit" type="TextEdit" parent="."]
+margin_left = 1.0
+margin_top = 16.0
+margin_right = 131.0
+margin_bottom = 34.0
+text = "public key"
+
+[node name="Button" type="Button" parent="."]
+margin_left = 25.0
+margin_top = 49.0
+margin_right = 115.0
+margin_bottom = 69.0
+text = "login"
