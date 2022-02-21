@@ -11,7 +11,7 @@ onready var menu_base = get_parent()
 onready var original_pos = self.global_transform.origin
 onready var player = find_parent("P1").get_node("Player")
 onready var control = find_parent("CrosshairControl")
-onready var camera = find_parent("PlayerCam")
+onready var camera = find_parent("PlayerCam").find_node("CameraOrbit")
 func _ready():
 	player.stop_selection = true
 	camera.stop_movement = true
@@ -35,6 +35,7 @@ func _physics_process(delta):
 		self.global_transform.origin = original_pos + diff.normalized() * mouse_delta
 		if Input.is_action_just_released("click"):
 			player.selection_type = selection_type
+			print("selecting ", selection_type)
 			on_destroy()
 	else:
 #		if player!= null:

@@ -88,6 +88,14 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="LogoutButton" type="Button" parent="Control"]
+margin_left = 399.0
+margin_top = 407.0
+margin_right = 570.0
+margin_bottom = 440.0
+text = "logout"
+
 [connection signal="toggled" from="Control/CheckButton" to="." method="_on_CheckButton_toggled"]
 [connection signal="button_down" from="Control/Button" to="." method="_on_Button_button_down"]
 [connection signal="text_changed" from="Control/username" to="." method="_on_username_text_changed"]
+[connection signal="pressed" from="Control/LogoutButton" to="." method="_on_LogoutButton_pressed"]

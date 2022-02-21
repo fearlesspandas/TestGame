@@ -1,0 +1,38 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://ui/EscapeMenu.gd" type="Script" id=1]
+[ext_resource path="res://ui/SettingsMenu.tscn" type="PackedScene" id=2]
+
+[node name="EscapeMenu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LogoutButton" type="Button" parent="."]
+margin_left = 411.0
+margin_top = 499.0
+margin_right = 565.0
+margin_bottom = 541.0
+text = "Logout"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SettingsButton" type="Button" parent="."]
+margin_left = 406.0
+margin_top = 386.0
+margin_right = 567.0
+margin_bottom = 427.0
+text = "settings"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SettingsMenu" parent="." instance=ExtResource( 2 )]
+visible = false
+
+[connection signal="pressed" from="LogoutButton" to="." method="_on_LogoutButton_pressed"]
+[connection signal="pressed" from="SettingsButton" to="." method="_on_SettingsButton_pressed"]

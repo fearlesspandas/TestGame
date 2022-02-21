@@ -19,6 +19,7 @@ var client_entities = {}
 var client_session_id = ""
 onready var server_map = load("res://world_models/Blockofthing.tscn")
 onready var client_map = load("res://ClientMap.tscn")
+var lobby_instance = null
 var map
 
 func _ready():
@@ -54,6 +55,15 @@ func _connected_to_server() -> void:
 	add_player_client_model()
 	add_child(map)
 	print("successfully connected")
+
+func kicked():
+	rpc("remove_player_entity",player_id)
+	rpc("decrease_connected")
+	get_tree().network_peer = null	
+	get_tree().get_root().get_child(0).remove_child(map)
+	OS.set_window_fullscreen(false)
+#	lobby_instance.visible = true
+	
 	
 func _server_disconnected() -> void:
 	rpc("remove_player_entity",player_id)
@@ -162,6 +172,9 @@ remote func add_player_entity(id):
 		server_broadcast_players(id)
 	
 remote func remove_player_entity(id):
+	print("removing player model")
+	players.erase(id)
+	player_id_relations.erase(id)
 	var node = map.get_node(str(id))
 	map.remove_child(node)
 	if node != null:

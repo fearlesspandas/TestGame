@@ -23,7 +23,13 @@ func remove_recursive(path):
 		directory.remove(path)
 	else:
 		print("Error removing " + path)
-	
+func add_player_profile(username,pubkey,private_key):	
+	var instance = PlayerProfile.instance()
+	instance.username = username
+	instance.public_key = pubkey
+	instance.private_key = private_key
+	instance.set_name(username)
+	self.add_child(instance)
 func _ready():
 	var dir = Directory.new()
 	var dir_open = dir.open("user://")

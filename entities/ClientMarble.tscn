@@ -12,3 +12,8 @@ script = ExtResource( 2 )
 script = ExtResource( 1 )
 
 [node name="PlayerCam" parent="." instance=ExtResource( 4 )]
+
+[node name="VisibilityNotifier" type="VisibilityNotifier" parent="."]
+
+[connection signal="camera_entered" from="VisibilityNotifier" to="PlayerCam" method="_on_VisibilityNotifier_camera_entered"]
+[connection signal="camera_exited" from="VisibilityNotifier" to="PlayerCam" method="_on_VisibilityNotifier_camera_exited"]

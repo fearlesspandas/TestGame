@@ -13,14 +13,13 @@ var moveSpeed_z = 0
 var moveSpeed_x = 0
 var last_path = Vector3()
 var last_received_position = null
-
-#need to include timestamp of last set location
-#maybe reduce location tick rate to about 1/3
-#onready var rigid = find_node("RigidBody")
+var prior_pos = Vector3()
+var last_dir = Vector3()
 onready var kinematic = find_node("KinematicBody")
-onready var camera = get_parent().get_node("PlayerCam")
-onready var camerautil:Camera = camera.find_node("Camera")
-onready var cursor_ray = camera.find_node("CursorRay")
+onready var camerawrapper = get_parent().find_node("PlayerCam")
+onready var camera = camerawrapper.find_node("CameraOrbit")
+onready var camerautil:Camera = camerawrapper.find_node("Camera")
+onready var cursor_ray = camerawrapper.find_node("CursorRay")
 onready var main_map = find_parent("Main")
 
 func getInput() -> Vector3:
@@ -51,6 +50,7 @@ func handle_left_click():
 	if Input.is_action_just_pressed("clear_waypoints"):
 		Server.client_clear_waypoints()
 	if Input.is_action_just_pressed("click") and not stop_selection and not selection_type == null:
+#		print("selecting",cursor_ray.intersect_pos)
 		var instance = selection_type.instance()
 		instance.global_transform.origin = cursor_ray.intersect_pos
 		Server.client_add_dest(Server.player_id,cursor_ray.intersect_pos,instance.type)
@@ -69,16 +69,6 @@ func capspeed(value:float) -> float:
 		return -MAX_MOVE_SPEED
 	else:
 		return value
-		
-func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
-	if within_epsilon:
-		decelerate(moveSpeed_z)
-		decelerate(moveSpeed_x)
-	else:
-		moveSpeed_z += accell * input.z * delta
-		moveSpeed_x += accell * input.x * delta
-		moveSpeed_x = capspeed(moveSpeed_x)
-		moveSpeed_z = capspeed(moveSpeed_z)
 		
 func draw_dest():
 	for s in selections:
@@ -102,7 +92,11 @@ func handle_manual(delta):
 func handle_semi_pilot(delta):
 	if last_received_position != null:
 		kinematic.global_transform.origin = last_received_position
+		last_dir = last_received_position - prior_pos
+		prior_pos = last_received_position
 		last_received_position = null
+#	else:
+#		kinematic.global_transform.origin +=  (last_dir)
 	if not autopilot_on:
 		handle_manual(delta)
 		

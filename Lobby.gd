@@ -17,6 +17,7 @@ func _ready():
 	get_tree().connect("network_peer_disconnected", self, "_player_disconnected")
 	get_tree().connect("connected_to_server", self, "_connected_to_server")
 	get_tree().connect("server_disconnected", self, "_server_disconnected")
+	Server.lobby_instance = self
 func _process(delta):
 	pc_label.text = str(Server.connected_clients)
 	var poses = ""
@@ -27,8 +28,8 @@ func _process(delta):
 	playerpos.text = poses 
 	playerdest.text = dests
 	Server.player_id = username.text
-	if Input.is_action_just_pressed("escape"):
-		control.visible = not control.visible
+#	if Input.is_action_just_pressed("escape"):
+#		control.visible = not control.visible
 #func _player_connected():
 #	print("player connected")
 #func _player_disconnected():
@@ -52,3 +53,7 @@ func _on_Button_button_down():
 
 func _on_username_text_changed():
 	Server.player_id = username.text
+
+
+func _on_LogoutButton_pressed():
+	Server.kicked()

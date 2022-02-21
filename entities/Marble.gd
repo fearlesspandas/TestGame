@@ -4,10 +4,10 @@ extends Spatial
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
-onready var player = get_node("Player")
-onready var rigidplayer = player.get_node("KinematicBody")
-onready var cameraorbit = get_node("PlayerCam")
-onready var camera = get_node("PlayerCam/cameraorbit/CameraBody/Camera")
+onready var player = find_node("Player")
+onready var rigidplayer = player.find_node("KinematicBody")
+onready var cameraorbit = find_node("PlayerCam").find_node("CameraOrbit")
+onready var camera = find_node("Camera")
 #export(String) var playermovement
 var thresh : float = 1
 

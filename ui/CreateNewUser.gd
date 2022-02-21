@@ -10,7 +10,7 @@ onready var info_label = find_node("info_label")
 onready var username = find_node("username_in")
 onready var import_menu :MenuButton= find_node("ImportMenu")
 onready var user_list : ItemList = find_node("UserList")
-
+onready var tabs = find_parent("TabContainer")
 var protocol = "http"
 var host = "localhost"
 var port = "8080"
@@ -44,10 +44,10 @@ func _on_generate_key_pressed():
 			var keysaved = key.save(new_user_dir + "/private.key")
 			var pubkeysaved = key.save(new_user_dir + "/public.key",true)
 			var certsaved = cert.save(new_user_dir + "/generated.crt")
-			print(keysaved,pubkeysaved,certsaved)
 			if keysaved == OK and pubkeysaved == OK and certsaved == OK:
 				new_key_label.text = pkey
 				new_key_label.visible = true
+				tabs.add_player_profile(username.text,key.save_to_string(true),key.save_to_string())
 			else:
 				info_label.text = "an error occurred while trying to save your key pair"
 		else:

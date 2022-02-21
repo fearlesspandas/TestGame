@@ -2,6 +2,7 @@ extends Control
 
 export(Resource) var ring_menu
 export(Resource) var autopilot_label
+export(Resource) var FPS_label
 onready var player = find_parent("P1").find_node("Player")
 onready var camera = find_parent("P1").find_node("PlayerCam")
 var menuEnabled = false
@@ -10,11 +11,16 @@ var escape_menu_enuabled = false
 var menu_instance = null
 var autopilot_label_instance = null
 var escape_menu_instance = null
+var fps_label_instance = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
-#	OS.set_window_fullscreen(!OS.window_fullscreen)
+	
 	pass
+func handle_fps():
+	if fps_label_instance != null:
+		fps_label_instance.text = str(Engine.get_frames_per_second())
 func _process(delta):
+	handle_fps()
 	if Input.is_action_just_pressed("middle_click"):
 		menuEnabled = not menuEnabled
 	if Input.is_action_just_pressed("escape"):
@@ -43,10 +49,17 @@ func _process(delta):
 		if autopilot_label_instance == null:
 			autopilot_label_instance = autopilot_label.instance()
 		self.add_child(autopilot_label_instance)
+		if fps_label_instance == null:
+			fps_label_instance = FPS_label.instance()
+		self.add_child(fps_label_instance)
 	else:
 		self.remove_child(autopilot_label_instance)
 		if autopilot_label_instance != null:
 			autopilot_label_instance.call_deferred("free")
 			autopilot_label_instance = null
+		self.remove_child(fps_label_instance)
+		if fps_label_instance != null:
+			fps_label_instance.call_deferred("free")
+			fps_label_instance = null	
 	
 
