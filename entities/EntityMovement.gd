@@ -20,7 +20,7 @@ onready var main_map = find_parent("Main")
 
 func add_dest(loc,type):
 	dest.append({"type":type,"location":loc})
-	Server.server_set_player_dest(self.name,self.dest)
+	NetworkManager.server_set_player_dest(self.name,self.dest)
 #func remove_dest(loc,)
 func decelerate(value:float) -> float:
 	if value > 0:
@@ -63,10 +63,10 @@ func handle_next_dest(delta):
 				update_next_selection()
 			dest.pop_front()	
 			next_selection.in_transit(self)
-			Server.server_set_player_dest(self.name,self.dest)
+			NetworkManager.server_set_player_dest(self.name,self.dest)
 			update_next_selection()
 		else:
-			rigid.set_axis_velocity(diff_vec.normalized() * moveSpeed_z)
+			handle_dir(diff_vec,true)
 func handle_autopilot(delta):
 	#pop dest on arrival
 	if dest.size() > 0:
@@ -77,21 +77,26 @@ func handle_jump_force(shouldjump):
 	else:
 		jumpForce += jumpMax/500
 	jumpForce = clamp(jumpForce,0,jumpMax)
-func handle_dir(path:Vector3):
-	handle_movement_speeds(false,Vector3(1,1,1),1)
+func handle_dir(path:Vector3,skip_mvmt_calc:bool = false):
+#	print("server handledir")
+	if not skip_mvmt_calc:
+		handle_movement_speeds(false,Vector3(1,1,1),1)
 	var normal = path.normalized()
 	var should_jump = normal.y > 0.1 #and jumpForce > jumpMax/3
-	var vec = Vector3(normal.x * moveSpeed_x,normal.y * jumpForce, normal.z * moveSpeed_z )
+	var scalar = 1
+	if not skip_mvmt_calc:
+		scalar = 2
+	var vec = Vector3(normal.x * moveSpeed_x* scalar,normal.y * jumpForce, normal.z * moveSpeed_z * scalar )
 	handle_jump_force(should_jump)
 	rigid.set_axis_velocity(vec)
 #func handle_manual(dir:Vector3):
 func handle_sync(delta):
-	Server.server_set_client_player_pos(self.name,rigid.global_transform.origin,rigid.rotation_degrees)
-	Server.server_set_entity_player_pos2(self.name,rigid.global_transform.origin,rigid.rotation_degrees)
-#	Server.server_set_client_rotation_deg(self.name,rigid.rotation_degrees)
+	NetworkManager.server_set_client_player_pos(self.name,rigid.global_transform.origin,rigid.rotation_degrees,jumpForce)
+	NetworkManager.server_set_entity_non_player_pos(self.name,rigid.global_transform.origin,rigid.rotation_degrees)
+#	NetworkManager.server_set_client_rotation_deg(self.name,rigid.rotation_degrees)
 	
-#	Server.server_set_client_player_basis(self.name,r)
-func _physics_process(delta):
+#	NetworkManager.server_set_client_player_basis(self.name,r)
+func _process(delta):
 	handle_sync(delta)
 	if autopilot_on:
 		handle_autopilot(delta)

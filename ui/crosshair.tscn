@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://ui/crosshair.gd" type="Script" id=1]
 [ext_resource path="res://ui/autopilot_label.tscn" type="PackedScene" id=2]
 [ext_resource path="res://ui/RingMenu.tscn" type="PackedScene" id=3]
 [ext_resource path="res://ui/EscapeMenu.tscn" type="PackedScene" id=4]
 [ext_resource path="res://ui/FPSlabel.tscn" type="PackedScene" id=5]
+[ext_resource path="res://ui/JumpRemainingLabel.tscn" type="PackedScene" id=6]
 
 [node name="CrosshairControl" type="Control"]
 anchor_left = 0.5
@@ -22,6 +23,7 @@ __meta__ = {
 ring_menu = ExtResource( 3 )
 autopilot_label = ExtResource( 2 )
 FPS_label = ExtResource( 5 )
+JumpRemaining_label = ExtResource( 6 )
 
 [node name="Crosshair" type="ColorRect" parent="."]
 anchor_left = 0.5

@@ -2,8 +2,10 @@ extends TabContainer
 
 export(Resource) var PlayerProfile
 export(Resource) var CreateUser
+export(Resource) var createServer
+onready var session_token_manager = find_node("SessionTokenManager")
 var profiles = []
-# Called when the node enters the scene tree for the first time.
+
 func remove_recursive(path):
 	var directory = Directory.new()
 	
@@ -59,6 +61,9 @@ func _ready():
 				instance.set_name(username)
 				self.add_child(instance)
 		#add new user
-		var instance = CreateUser.instance()
-		instance.set_name("+")
-		self.add_child(instance)
+		var create_user_instance = CreateUser.instance()
+		create_user_instance.set_name("+")
+#		var create_server_instance = createServer.instance()
+#		createServer.set_name("new_server")
+		self.add_child(create_user_instance)
+#		self.add_child(createServer)

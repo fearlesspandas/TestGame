@@ -3,6 +3,7 @@ extends Control
 export(Resource) var ring_menu
 export(Resource) var autopilot_label
 export(Resource) var FPS_label
+export(Resource) var JumpRemaining_label
 onready var player = find_parent("P1").find_node("Player")
 onready var camera = find_parent("P1").find_node("PlayerCam")
 var menuEnabled = false
@@ -12,15 +13,21 @@ var menu_instance = null
 var autopilot_label_instance = null
 var escape_menu_instance = null
 var fps_label_instance = null
+var jump_label_instance = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	
+	jump_label_instance = JumpRemaining_label.instance()
+	self.add_child(jump_label_instance)
 	pass
 func handle_fps():
 	if fps_label_instance != null:
 		fps_label_instance.text = str(Engine.get_frames_per_second())
+func handle_jump_force():
+	if jump_label_instance != null:
+		jump_label_instance.text = str(player.jump_force)
 func _process(delta):
 	handle_fps()
+	handle_jump_force()
 	if Input.is_action_just_pressed("middle_click"):
 		menuEnabled = not menuEnabled
 	if Input.is_action_just_pressed("escape"):

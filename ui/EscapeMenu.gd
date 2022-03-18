@@ -12,7 +12,7 @@ onready var settings_button = find_node("SettingsButton")
 onready var camera_orbit = find_parent("CameraOrbit")
 onready var all_assets = {"settings":settings_menu,"settings_button":settings_button,"logout_button":logout_button}
 func _ready():
-	print("assets " , all_assets)
+	pass
 func show_asset(id):
 	all_assets[id].visible = true
 func hide_asset(id):
@@ -35,4 +35,4 @@ func _on_SettingsButton_pressed():
 
 
 func _on_LogoutButton_pressed():
-	Server.kicked()
+	NetworkManager.kicked()

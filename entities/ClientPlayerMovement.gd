@@ -15,7 +15,8 @@ var last_path = Vector3()
 var last_received_position = null
 var prior_pos = Vector3()
 var last_dir = Vector3()
-onready var kinematic = find_node("KinematicBody")
+var jump_force = 0
+onready var kinematic:KinematicBody = find_node("KinematicBody")
 onready var camerawrapper = get_parent().find_node("PlayerCam")
 onready var camera = camerawrapper.find_node("CameraOrbit")
 onready var camerautil:Camera = camerawrapper.find_node("Camera")
@@ -36,6 +37,7 @@ func getInput() -> Vector3:
 		input.y += 1
 	input = input.normalized()
 	return input
+	
 func move_towards_loc(loc:Vector3,rot):
 	var diff = (loc) - kinematic.global_transform.origin
 	last_received_position = loc
@@ -48,12 +50,12 @@ func handle_left_click():
 	if Input.is_action_just_pressed("toggle_autopilot"):
 		toggle_autopilot()
 	if Input.is_action_just_pressed("clear_waypoints"):
-		Server.client_clear_waypoints()
+		NetworkManager.client_clear_waypoints()
 	if Input.is_action_just_pressed("click") and not stop_selection and not selection_type == null:
 #		print("selecting",cursor_ray.intersect_pos)
 		var instance = selection_type.instance()
 		instance.global_transform.origin = cursor_ray.intersect_pos
-		Server.client_add_dest(Server.player_id,cursor_ray.intersect_pos,instance.type)
+		NetworkManager.client_add_dest(ClientManager.player_id,cursor_ray.intersect_pos,instance.type)
 		
 func decelerate(value:float) -> float:
 	if value > 0:
@@ -72,7 +74,7 @@ func capspeed(value:float) -> float:
 		
 func draw_dest():
 	for s in selections:
-		Server.map.remove_child(s)
+		NetworkManager.map.remove_child(s)
 		if s != null:
 			s.call_deferred("free")
 			s = null
@@ -80,20 +82,22 @@ func draw_dest():
 	for d in dest:
 		var instance = SelectorModelClient.get_resource_by_type(d.type).instance()
 		instance.global_transform.origin = d.location
-		Server.map.add_child(instance)
+		NetworkManager.map.add_child(instance)
 		selections.append(instance)
 
 func handle_manual(delta):
 	var input = getInput()
 	var pointer = camera.pointer
 	var dir = pointer.global_transform.basis.z * input.z + pointer.global_transform.basis.x * input.x + Vector3(0,input.y,0)
-	Server.client_move_entity(dir,Server.player_id)
+	NetworkManager.client_move_entity(dir,ClientManager.player_id)
 	
 func handle_semi_pilot(delta):
 	if last_received_position != null:
+#		var dir = last_received_position - kinematic.global_transform.origin 
+#		kinematic.move_and_slide(dir,Vector3.UP)
 		kinematic.global_transform.origin = last_received_position
-		last_dir = last_received_position - prior_pos
-		prior_pos = last_received_position
+#		last_dir = last_received_position - prior_pos
+#		prior_pos = last_received_position
 		last_received_position = null
 #	else:
 #		kinematic.global_transform.origin +=  (last_dir)
@@ -101,11 +105,12 @@ func handle_semi_pilot(delta):
 		handle_manual(delta)
 		
 func toggle_autopilot():
-	Server.client_toggle_autopilot()
+	NetworkManager.client_toggle_autopilot()
 	autopilot_on = not autopilot_on
 	camera.force_attach = not autopilot_on
 
-func _physics_process(delta):
+func _process(delta):
+	print("clientmoverment")
 	handle_left_click()
 	handle_semi_pilot(delta)
 #	handle_autopilot(delta)

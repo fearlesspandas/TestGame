@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://entities/BeltOrbit.gd" type="Script" id=1]
 
@@ -24,13 +24,26 @@ albedo_color = Color( 0.333333, 0.211765, 0.333333, 1 )
 albedo_texture = SubResource( 18 )
 metallic_texture = SubResource( 19 )
 metallic_texture_channel = 2
+emission_enabled = true
+emission = Color( 0.0431373, 0.12549, 0.278431, 1 )
+emission_energy = 1.0
+emission_operator = 0
+emission_on_uv2 = false
 subsurf_scatter_enabled = true
 subsurf_scatter_strength = 0.0
 
 [sub_resource type="SphereMesh" id=20]
 material = SubResource( 2 )
 
+[sub_resource type="SpatialMaterial" id=29]
+emission_enabled = true
+emission = Color( 0.137255, 0.4, 0.827451, 1 )
+emission_energy = 1.0
+emission_operator = 0
+emission_on_uv2 = false
+
 [sub_resource type="CylinderMesh" id=21]
+material = SubResource( 29 )
 height = 0.182
 
 [sub_resource type="OpenSimplexNoise" id=22]
@@ -39,22 +52,19 @@ height = 0.182
 noise = SubResource( 22 )
 
 [sub_resource type="SpatialMaterial" id=23]
-albedo_color = Color( 0.0588235, 0.192157, 0.027451, 1 )
+albedo_color = Color( 0.137255, 0.4, 0.827451, 1 )
 albedo_texture = SubResource( 12 )
+emission_enabled = true
+emission = Color( 0.137255, 0.4, 0.827451, 1 )
+emission_energy = 1.0
+emission_operator = 0
+emission_on_uv2 = false
 
 [sub_resource type="SphereShape" id=24]
 
 [sub_resource type="SphereMesh" id=25]
 radius = 0.1
 height = 0.2
-
-[sub_resource type="Curve" id=26]
-min_value = -639.01
-max_value = 706.5
-_data = [ Vector2( 0.402174, -146.676 ), 0.0, 0.0, 0, 0, Vector2( 0.777174, 685.094 ), 0.0, 0.0, 0, 0 ]
-
-[sub_resource type="CurveTexture" id=15]
-curve = SubResource( 26 )
 
 [sub_resource type="Curve" id=27]
 min_value = 0.99
@@ -64,9 +74,12 @@ curve = SubResource( 27 )
 
 [sub_resource type="SpatialMaterial" id=28]
 render_priority = 1
-albedo_color = Color( 0.85098, 0.423529, 0.956863, 1 )
-albedo_texture = SubResource( 15 )
 roughness_texture = SubResource( 17 )
+emission_enabled = true
+emission = Color( 0.137255, 0.4, 0.827451, 1 )
+emission_energy = 1.0
+emission_operator = 0
+emission_on_uv2 = false
 
 [node name="Spatial" type="Spatial"]
 

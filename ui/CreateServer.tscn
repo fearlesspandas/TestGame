@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://ui/CreateServer.gd" type="Script" id=1]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CreateServerButton" type="Button" parent="."]
+margin_left = 420.0
+margin_top = 142.0
+margin_right = 543.0
+margin_bottom = 236.0
+text = "create server"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="IpAddressLabel" type="RichTextLabel" parent="."]
+margin_left = 369.0
+margin_top = 273.0
+margin_right = 618.0
+margin_bottom = 334.0
+
+[connection signal="pressed" from="CreateServerButton" to="." method="_on_CreateServerButton_pressed"]

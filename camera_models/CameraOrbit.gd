@@ -2,8 +2,8 @@ extends Spatial
 
 export var lookSens_h : float = 10
 export var lookSense_v : float = 20
-export var minLookAngle : float = -90.0
-export var maxLookAngle : float = 90
+export var minLookAngle : float = -0.0
+export var maxLookAngle : float =90
 export var moveDelta : float = 20
 export var mouseDelta : Vector2 = Vector2()
 export var scrollDelta: float = 5
@@ -29,7 +29,7 @@ onready var initangles_refocus_orbit = self.rotation_degrees
 onready var initial_pos_diff = self.global_transform.origin - camera.global_transform.origin
 onready var initial_angles_diff = self.rotation_degrees - camera.rotation_degrees
 onready var visible_by_cam = true
-onready var camerabody = base.find_node("CameraBody")
+#onready var camerabody = base.find_node("CameraBody")
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	OS.set_window_fullscreen(true)
@@ -64,6 +64,7 @@ func getInput() -> Vector3:
 func refocus_camera():
 	camera.global_transform.basis = initbasis_refocus_camera
 	cameraspace.global_transform.origin = initpos_refocus_camera
+#	self.rotation = initangles_refocus_orbit
 	var self_rot = camera.rotation_degrees
 	self.rotation_degrees = Vector3(0,0,0)
 	camera.look_at(self.global_transform.origin,Vector3.UP)
@@ -108,6 +109,10 @@ func _physics_process(delta):
 			refocus_camera()
 	free_moving = free_moving or detached
 	pointer.visible = not detached
+	if free_moving:
+		minLookAngle = -90
+	else:
+		minLookAngle = 0
 	if Input.is_action_pressed("refocus_camera"):
 		refocus_camera()
 	elif free_moving and not stop_movement:
@@ -129,11 +134,3 @@ func _physics_process(delta):
 #			print("isplayer",ray.pos_isPlayer())
 #			cameraspace.global_transform.origin += backdir.normalized()*10
 	
-
-
-func _on_VisibilityNotifier_camera_exited(camera):
-	visible_by_cam = false
-
-
-func _on_VisibilityNotifier_camera_entered(camera):
-	visible_by_cam = true
