@@ -10,6 +10,7 @@ var last_known_position = null
 onready var kinematic = find_node("KinematicBody")
 
 func update_fields(fields):
+	print("updating fields for entity ", fields)
 	last_known_position = fields["location"]
 	handle_position()
 	if fields["rot"] != null:
@@ -29,4 +30,5 @@ func _physics_process(delta):
 	handle_position()
 
 func get_entity():
+	print("entity found")
 	return self

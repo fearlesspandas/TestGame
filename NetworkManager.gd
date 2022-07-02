@@ -66,8 +66,9 @@ func add_player_client_model():
 #Client	
 remote func set_client_fields(id,fields):
 #	print("client received server response")
-	var player = ClientManager.entities[id]["instance"].get_entity()
-	player.update_fields(fields)
+	if ClientManager.entities.has(id):
+		var player = ClientManager.entities[id]["instance"]
+		player.get_entity().update_fields(fields)
 #Server
 func server_set_client_fields_unreliable(id,fields):
 	if get_tree().is_network_server() and ServerManager.players.has(id):
@@ -78,7 +79,6 @@ func server_set_client_fields(id,fields):
 		rpc("set_client_fields",id,fields)		
 #Client
 func client_add_fields(id,fields):
-	print("client update fields" + str(fields))
 	rpc("update_fields",id,fields)
 func client_add_fields_unreliable(id,fields):
 	rpc_unreliable("update_fields",id,fields)
@@ -97,7 +97,7 @@ remote func client_add_entity(id):
 		instance.player_id = id
 		instance.set_name(str(id))
 		map.add_child(instance)
-		ClientManager.entities[id] = instance
+		ClientManager.entities[id] = {"instance":instance}
 #Server
 #broadcasts connected players
 #to newly connected client
@@ -105,7 +105,7 @@ func server_broadcast_players(to_id):
 	var rid = ServerManager.players[to_id]["rpc_id"]
 	for p_k in ServerManager.players.keys():
 		if p_k != to_id:
-			rpc_id(rid,"client_add_entity",ServerManager.player_username_relations[p_k])	
+			rpc_id(rid,"client_add_entity",p_k)	
 #Server
 #broadcasts a newly connected player
 #to all other currently connected players
@@ -113,7 +113,7 @@ func server_broadcast_new_entity(id):
 	for p_k in ServerManager.players.keys():
 		if p_k != id:
 			var rid = ServerManager.players[p_k]["rpc_id"]
-			rpc_id(rid,"client_add_entity",ServerManager.player_username_relations[id])
+			rpc_id(rid,"client_add_entity",id)
 #Server		
 remote func add_player_entity(id,username):
 	#todo - add check against http server session
@@ -139,11 +139,10 @@ remote func remove_player_entity(id):
 		node.call_deferred("free")
 #Server		
 remote func update_fields(id,fields):
-	print("updating fields", str(fields))
+#	print("updating fields", str(fields))
 	if get_tree().is_network_server():
 		var player = map.get_node(str(id))
 		if player != null:
-			print("player found")
 			player.update_fields(fields)
 
 

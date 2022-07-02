@@ -20,13 +20,12 @@ onready var main_map = find_parent("Main")
 
 func update_fields(fields):
 	#update destinations
-	var newdests = fields["dest"]
-	if newdests != null:
-		add_new_dests(newdests)
-	var returnFields = {"dest":self.dest}
-	if fields["autopilot_on"] != null:
+	print("updating fields ", str(fields))
+	if fields.has("dest"):
+		add_new_dests(fields["dest"])
+	if fields.has("autopilot_on"):
 		autopilot_on = fields["autopilot_on"]
-	if fields["path"] != null:
+	if fields.has("path"):
 		handle_dir(fields["path"])
 		
 func add_new_dests(newdests):
@@ -35,6 +34,7 @@ func add_new_dests(newdests):
 		var loc = d["location"]	
 		self.dest.append({"type":type,"location":loc})
 	var returnFields = {"dest":self.dest}
+	print("new dests ", self.dest)
 	NetworkManager.server_set_client_fields(self.name,returnFields)
 func decelerate(value:float) -> float:
 	if value > 0:
@@ -112,7 +112,7 @@ func handle_dir(path:Vector3,skip_mvmt_calc:bool = false):
 	rigid.set_axis_velocity(vec)
 	
 func handle_sync(delta):
-	var fields = {"location":rigid.global_transform.origin,"rot":rigid.global_transform.rotation_degrees,"jumpForce":jumpForce}
+	var fields = {"location":rigid.global_transform.origin,"rot":rigid.rotation_degrees,"jumpForce":jumpForce}
 	NetworkManager.server_set_client_fields_unreliable(self.name,fields)
 	
 func _process(delta):

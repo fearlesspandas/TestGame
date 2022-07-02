@@ -39,17 +39,14 @@ func getInput() -> Vector3:
 	return input
 	
 func update_fields(fields):
-	var loc = fields["loc"]
-	var rot = fields["rot"]
-	if loc != null and rot != null:
-		move_towards_loc(loc,rot)
-		self.kinematic.rotation_degrees = rot
-	if fields["dest"] != null:
+	if fields.has("location") and fields.has("rot"):
+		move_towards_loc(fields["location"],fields["rot"])
+		self.kinematic.rotation_degrees = fields["rot"]
+	if fields.has("dest"):
 		self.dest = fields["dest"]
 		draw_dest()
-	var ap_on = fields["autopilot_on"]
-	if ap_on != null:
-		autopilot_on = ap_on
+	if fields.has("autopilot_on"):
+		autopilot_on = fields["autopilot_on"]
 		
 func move_towards_loc(loc:Vector3,rot):
 	var diff = (loc) - kinematic.global_transform.origin
@@ -67,7 +64,7 @@ func handle_left_click():
 	if Input.is_action_just_pressed("click") and not stop_selection and not selection_type == null:
 		var instance = selection_type.instance()
 		instance.global_transform.origin = cursor_ray.intersect_pos
-		var fields = {"location":cursor_ray.intersect_pos,"type":instance.type}
+		var fields = {"dest":[{"location":cursor_ray.intersect_pos,"type":instance.type}]}
 		NetworkManager.client_add_fields(ClientManager.player_id,fields)
 		
 func decelerate(value:float) -> float:
@@ -124,7 +121,6 @@ func toggle_autopilot():
 	camera.force_attach = not autopilot_on
 
 func _process(delta):
-	print("clientmoverment")
 	handle_left_click()
 	handle_semi_pilot(delta)
 #	handle_autopilot(delta)
