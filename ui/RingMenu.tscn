@@ -1,9 +1,10 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://ui/RingMenu.gd" type="Script" id=1]
 [ext_resource path="res://ui/MenuSelector.gd" type="Script" id=2]
 [ext_resource path="res://selectors/selectionarea.tscn" type="PackedScene" id=3]
 [ext_resource path="res://selectors/teleport_selection.tscn" type="PackedScene" id=4]
+[ext_resource path="res://selectors/speedup_selection.tscn" type="PackedScene" id=5]
 
 [sub_resource type="CircleShape2D" id=1]
 radius = 53.0377
@@ -94,6 +95,32 @@ grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 text = "Teleport"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SpeedUp" type="Area2D" parent="."]
+position = Vector2( 38, 38 )
+script = ExtResource( 2 )
+selection_type = ExtResource( 5 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SpeedUp"]
+shape = SubResource( 6 )
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="SpeedUp"]
+modulate = Color( 0.129412, 0.886275, 0.0862745, 1 )
+mesh = SubResource( 8 )
+
+[node name="RichTextLabel" type="RichTextLabel" parent="SpeedUp"]
+margin_left = -26.0
+margin_top = -20.0
+margin_right = 49.0
+margin_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "speedUp"
 __meta__ = {
 "_edit_use_anchors_": false
 }

@@ -1,0 +1,9 @@
+Goal:
+	Simplify and abstract the entity movement/positioning
+approach:
+	1. remove method calls on specific class properties, and replace with a 		generalized dict with fields we can define outside the coordinat		ion logic
+`	2. Reduce NetworkManager to generalized methods regarding property updates
+	3. redefine client behavior to use the abstracted properties dict
+	4. redefine server behavior to use the simpler network manager logic 
+		with field calls rather than hyper specific methods
+

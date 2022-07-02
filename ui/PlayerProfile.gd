@@ -48,6 +48,7 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, body):
 		var bodyraw = Marshalls.base64_to_raw(body.get_string_from_utf8())
 		var decrypted = crypto.decrypt(pvkey,bodyraw)
 		if not decrypted.empty():
+			
 			var sess_tok = Marshalls.base64_to_utf8(Marshalls.raw_to_base64(decrypted))
 			HttpServerManager.client_session_id = sess_tok
 			info.text = "New Session Id added: " + HttpServerManager.client_session_id

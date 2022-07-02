@@ -65,7 +65,7 @@ margin_left = 634.0
 margin_top = 66.0
 margin_right = 959.0
 margin_bottom = 129.0
-text = "192.1.168.1.168"
+text = "192.168.1.168"
 __meta__ = {
 "_edit_use_anchors_": false
 }
