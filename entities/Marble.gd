@@ -27,4 +27,5 @@ func _physics_process(delta):
 #		cameraorbit.global_transform.origin.z -= diff.z
 #		cameraorbit.global_transform.origin.y -= diff.y
 	
-		
+func get_entity():
+	return player

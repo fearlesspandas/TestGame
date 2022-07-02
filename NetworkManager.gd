@@ -58,63 +58,31 @@ func add_player_client_model():
 		var instance = EntityResourceManager.PlayerClientModel.instance()
 		instance.global_transform.origin = ClientManager.spawn_loc
 		instance.set_name("P1")
-		ClientManager.player_instance = instance
-		map.add_child(ClientManager.player_instance)
+		var fields = {"instance":instance}
+		ClientManager.entities[ClientManager.player_id] = fields
+		map.add_child(instance)
 	
-#client	
-remote func client_set_entity_non_player_pos(loc,rot,id):
-#	print("id",id)
-	if id != ClientManager.player_id:
-		if ClientManager.client_entities.has(id):
-#			print("client set other player pos: " + str(loc))
-			var entity = ClientManager.client_entities[id]
-			entity.last_known_position = loc
-			entity.kinematic.rotation_degrees = rot
-#Server
-remote func server_set_entity_non_player_pos(entityid,loc,rot):
-	rpc_unreliable("client_set_entity_non_player_pos",loc,rot,ServerManager.player_username_relations[entityid])
-#Server
-remote func server_set_entity_player_pos(entityid,pid)	:
-	if get_tree().is_network_server() and ServerManager.players.has(entityid):
-		var rid = ServerManager.player_id_relations[pid]
-		var entity = ServerManager.players[entityid]
-		var loc = entity.global_transform.origin
-		var rot = entity.rotation_degrees
-		rpc_unreliable_id(rid,"client_set_entity_player_pos",loc,rot,entityid)
-		
-remote func server_set_npc_properties(npcid,properties):
-	rpc_unreliable("client_set_npc_properties",properties)
-func client_set_npc_properties(npcid,properties):
-	if ClientManager.client_entities.has(npcid):
-		var npc = ClientManager.client_entities[npcid]
-		npc.properties = properties
 
 #Client	
-remote func set_client_player_pos(loc:Vector3,rot,jump_force):
+remote func set_client_fields(id,fields):
 #	print("client received server response")
-	var player = ClientManager.player_instance.get_node("Player")
-	player.move_towards_loc(loc,rot)
-	player.jump_force = jump_force
+	var player = ClientManager.entities[id]["instance"].get_entity()
+	player.update_fields(fields)
 #Server
-func server_set_client_player_pos(id,loc,rot,jump_force):
-#	print(ServerManager.players)
-#	print(id)
-	if get_tree().is_network_server() and ServerManager.player_id_relations.has(id):
-#		print("server client response")
-		var rid = ServerManager.player_id_relations[id]
-		rpc_unreliable_id(rid,"set_client_player_pos",loc,rot,jump_force)
+func server_set_client_fields_unreliable(id,fields):
+	if get_tree().is_network_server() and ServerManager.players.has(id):
+		rpc_unreliable("set_client_fields",id,fields)
+		
+func server_set_client_fields(id,fields):
+	if get_tree().is_network_server() and ServerManager.players.has(id):
+		rpc("set_client_fields",id,fields)		
 #Client
-func client_add_dest(id,loc,type):
-	rpc("add_dest",id,loc,type)
-#Client	
-func client_move_entity(path:Vector3,id):
-#	print("network man moving client")
-	rpc_unreliable("server_move_entity",path,id)
-#Server	
-remote func server_move_entity(path:Vector3,id):
-	if get_tree().is_network_server():
-#		print("network man moving server")
-		ServerManager.players[id].handle_dir(path)
+func client_add_fields(id,fields):
+	print("client update fields" + str(fields))
+	rpc("update_fields",id,fields)
+func client_add_fields_unreliable(id,fields):
+	rpc_unreliable("update_fields",id,fields)
+
 #Server	
 remotesync func increase_connected():
 	ServerManager.connected_clients += 1
@@ -129,12 +97,12 @@ remote func client_add_entity(id):
 		instance.player_id = id
 		instance.set_name(str(id))
 		map.add_child(instance)
-		ClientManager.client_entities[id] = instance
+		ClientManager.entities[id] = instance
 #Server
 #broadcasts connected players
 #to newly connected client
 func server_broadcast_players(to_id):
-	var rid = ServerManager.player_id_relations[to_id]
+	var rid = ServerManager.players[to_id]["rpc_id"]
 	for p_k in ServerManager.players.keys():
 		if p_k != to_id:
 			rpc_id(rid,"client_add_entity",ServerManager.player_username_relations[p_k])	
@@ -144,7 +112,7 @@ func server_broadcast_players(to_id):
 func server_broadcast_new_entity(id):
 	for p_k in ServerManager.players.keys():
 		if p_k != id:
-			var rid = ServerManager.player_id_relations[p_k]
+			var rid = ServerManager.players[p_k]["rpc_id"]
 			rpc_id(rid,"client_add_entity",ServerManager.player_username_relations[id])
 #Server		
 remote func add_player_entity(id,username):
@@ -156,36 +124,31 @@ remote func add_player_entity(id,username):
 		instance.global_transform.origin = ServerManager.spawn_loc
 		instance.set_name(str(id))
 		print("added character model")
+		var fields = {"instance":instance,"rpc_id":get_tree().get_rpc_sender_id(),"username":username}
 		map.add_child(instance)
-		ServerManager.players[id] = instance
-		ServerManager.player_id_relations[id] = get_tree().get_rpc_sender_id()
-		ServerManager.player_username_relations[id]  = username
+		ServerManager.players[id] = fields
 		server_broadcast_new_entity(id)
 		server_broadcast_players(id)
 #Server	
 remote func remove_player_entity(id):
 	print("removing player model")
 	ServerManager.players.erase(id)
-	ServerManager.player_id_relations.erase(id)
 	var node = map.get_node(str(id))
 	map.remove_child(node)
 	if node != null:
 		node.call_deferred("free")
 #Server		
-remote func add_dest(id,loc,type):
+remote func update_fields(id,fields):
+	print("updating fields", str(fields))
 	if get_tree().is_network_server():
 		var player = map.get_node(str(id))
 		if player != null:
-			player.add_dest(loc,type)
-#Server
-func server_set_player_dest(id,dest):
-	if get_tree().is_network_server():
-		var rid = ServerManager.player_id_relations[id]
-		rpc_unreliable_id(rid,"client_set_player_dest",dest)
-#client
-remote func client_set_player_dest(dest:Array):
-	ClientManager.player_instance.get_node("Player").dest = dest
-	ClientManager.player_instance.get_node("Player").draw_dest()
+			print("player found")
+			player.update_fields(fields)
+
+
+
+#utility functions need to abstract
 #client
 func client_toggle_autopilot():
 	rpc("toggle_autopilot",ClientManager.player_id)
@@ -202,7 +165,7 @@ func client_clear_waypoints():
 remote func server_clear_waypoints(id):
 	if get_tree().is_network_server():
 		ServerManager.players[id].dest = []
-		server_set_player_dest(id,[])
+		server_set_client_fields(id,{"dest":[]})
 #client and server
 func _on_startserver_toggled(button_pressed):
 	if button_pressed:

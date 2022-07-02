@@ -18,10 +18,24 @@ var next_selection = null
 onready var rigid = get_node("RigidBody")
 onready var main_map = find_parent("Main")
 
-func add_dest(loc,type):
-	dest.append({"type":type,"location":loc})
-	NetworkManager.server_set_player_dest(self.name,self.dest)
-#func remove_dest(loc,)
+func update_fields(fields):
+	#update destinations
+	var newdests = fields["dest"]
+	if newdests != null:
+		add_new_dests(newdests)
+	var returnFields = {"dest":self.dest}
+	if fields["autopilot_on"] != null:
+		autopilot_on = fields["autopilot_on"]
+	if fields["path"] != null:
+		handle_dir(fields["path"])
+		
+func add_new_dests(newdests):
+	for d in newdests:
+		var type = d["type"]
+		var loc = d["location"]	
+		self.dest.append({"type":type,"location":loc})
+	var returnFields = {"dest":self.dest}
+	NetworkManager.server_set_client_fields(self.name,returnFields)
 func decelerate(value:float) -> float:
 	if value > 0:
 		value -= min(decell,value) 
@@ -39,6 +53,7 @@ func capspeed(value:float) -> float:
 
 func toggle_autopilot():
 	autopilot_on = not autopilot_on
+	
 func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 	if within_epsilon:
 		moveSpeed_z = decelerate(moveSpeed_z)
@@ -48,10 +63,12 @@ func handle_movement_speeds(within_epsilon:bool,input:Vector3,delta):
 		moveSpeed_x += accell * input.x * delta
 		moveSpeed_x = capspeed(moveSpeed_x)
 		moveSpeed_z = capspeed(moveSpeed_z)
+		
 func update_next_selection():
 	if next_selection != null:
 		next_selection.call_deferred("free")
 	next_selection = SelectorModelClient.get_resource_by_type(dest[0].type).instance()
+	
 func handle_next_dest(delta):
 		var next_dest = dest[0]
 		var next = next_dest.location
@@ -63,20 +80,24 @@ func handle_next_dest(delta):
 				update_next_selection()
 			dest.pop_front()	
 			next_selection.in_transit(self)
-			NetworkManager.server_set_player_dest(self.name,self.dest)
+			var returnDest = {"dest":self.dest}
+			NetworkManager.server_set_client_fields(self.name,returnDest)
 			update_next_selection()
 		else:
 			handle_dir(diff_vec,true)
+			
 func handle_autopilot(delta):
 	#pop dest on arrival
 	if dest.size() > 0:
 		handle_next_dest(delta)
+		
 func handle_jump_force(shouldjump):
 	if shouldjump:
 		jumpForce-=jumpMax/3
 	else:
 		jumpForce += jumpMax/500
 	jumpForce = clamp(jumpForce,0,jumpMax)
+	
 func handle_dir(path:Vector3,skip_mvmt_calc:bool = false):
 #	print("server handledir")
 	if not skip_mvmt_calc:
@@ -89,18 +110,14 @@ func handle_dir(path:Vector3,skip_mvmt_calc:bool = false):
 	var vec = Vector3(normal.x * moveSpeed_x* scalar,normal.y * jumpForce, normal.z * moveSpeed_z * scalar )
 	handle_jump_force(should_jump)
 	rigid.set_axis_velocity(vec)
-#func handle_manual(dir:Vector3):
-func handle_sync(delta):
-	NetworkManager.server_set_client_player_pos(self.name,rigid.global_transform.origin,rigid.rotation_degrees,jumpForce)
-	NetworkManager.server_set_entity_non_player_pos(self.name,rigid.global_transform.origin,rigid.rotation_degrees)
-#	NetworkManager.server_set_client_rotation_deg(self.name,rigid.rotation_degrees)
 	
-#	NetworkManager.server_set_client_player_basis(self.name,r)
+func handle_sync(delta):
+	var fields = {"location":rigid.global_transform.origin,"rot":rigid.global_transform.rotation_degrees,"jumpForce":jumpForce}
+	NetworkManager.server_set_client_fields_unreliable(self.name,fields)
+	
 func _process(delta):
 	handle_sync(delta)
 	if autopilot_on:
 		handle_autopilot(delta)
 	else:
 		handle_movement_speeds(true,Vector3(1,1,1),1)
-#	if autopilot_on:
-#		handle_autopilot(delta)

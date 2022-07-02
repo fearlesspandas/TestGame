@@ -8,6 +8,12 @@ var query = "pos"
 var player_id = ""
 var last_known_position = null
 onready var kinematic = find_node("KinematicBody")
+
+func update_fields(fields):
+	last_known_position = fields["location"]
+	handle_position()
+	if fields["rot"] != null:
+		set_rotation_degrees(fields["rot"])
 func get_position_from_server():
 	if player_id != null and player_id.length() > 0:
 		NetworkManager.client_call_server_set_entity(player_id,ClientManager.player_id)
@@ -21,3 +27,6 @@ func handle_position():
 func _physics_process(delta):
 #	get_position_from_server()
 	handle_position()
+
+func get_entity():
+	return self

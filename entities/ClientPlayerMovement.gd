@@ -38,6 +38,19 @@ func getInput() -> Vector3:
 	input = input.normalized()
 	return input
 	
+func update_fields(fields):
+	var loc = fields["loc"]
+	var rot = fields["rot"]
+	if loc != null and rot != null:
+		move_towards_loc(loc,rot)
+		self.kinematic.rotation_degrees = rot
+	if fields["dest"] != null:
+		self.dest = fields["dest"]
+		draw_dest()
+	var ap_on = fields["autopilot_on"]
+	if ap_on != null:
+		autopilot_on = ap_on
+		
 func move_towards_loc(loc:Vector3,rot):
 	var diff = (loc) - kinematic.global_transform.origin
 	last_received_position = loc
@@ -52,10 +65,10 @@ func handle_left_click():
 	if Input.is_action_just_pressed("clear_waypoints"):
 		NetworkManager.client_clear_waypoints()
 	if Input.is_action_just_pressed("click") and not stop_selection and not selection_type == null:
-#		print("selecting",cursor_ray.intersect_pos)
 		var instance = selection_type.instance()
 		instance.global_transform.origin = cursor_ray.intersect_pos
-		NetworkManager.client_add_dest(ClientManager.player_id,cursor_ray.intersect_pos,instance.type)
+		var fields = {"location":cursor_ray.intersect_pos,"type":instance.type}
+		NetworkManager.client_add_fields(ClientManager.player_id,fields)
 		
 func decelerate(value:float) -> float:
 	if value > 0:
@@ -89,7 +102,8 @@ func handle_manual(delta):
 	var input = getInput()
 	var pointer = camera.pointer
 	var dir = pointer.global_transform.basis.z * input.z + pointer.global_transform.basis.x * input.x + Vector3(0,input.y,0)
-	NetworkManager.client_move_entity(dir,ClientManager.player_id)
+	var fields = {"path":dir}
+	NetworkManager.client_add_fields_unreliable(ClientManager.player_id,fields)
 	
 func handle_semi_pilot(delta):
 	if last_received_position != null:
@@ -105,7 +119,7 @@ func handle_semi_pilot(delta):
 		handle_manual(delta)
 		
 func toggle_autopilot():
-	NetworkManager.client_toggle_autopilot()
+	NetworkManager.client_add_fields(ClientManager.player_id,{"autopilot_on":!autopilot_on})
 	autopilot_on = not autopilot_on
 	camera.force_attach = not autopilot_on
 
